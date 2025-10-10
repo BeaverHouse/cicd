@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cloud
+  namespace: argo-project
+spec:
+  description: Project for Cloud K8s. (AWS, Azure, or any other cloud)
+  destinations:
+    - name: oke
+      namespace: "*"
+      server: "*"
+  sourceRepos:
+    - "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

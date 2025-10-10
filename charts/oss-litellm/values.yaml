@@ -1,0 +1,109 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/berriai/litellm-database
+  pullPolicy: IfNotPresent
+  tag: "main-v1.76.3.rc.1"
+
+imagePullSecrets:
+  - name: ghcr-secret
+nameOverride: "litellm"
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+
+environmentSecrets:
+  - litellm-secret
+
+environmentConfigMaps: []
+
+service:
+  type: ClusterIP
+  port: 4000
+
+separateHealthApp: true
+separateHealthPort: 8081
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    external-dns.alpha.kubernetes.io/hostname: "llm.tinyclover.com"
+    external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
+    external-dns.alpha.kubernetes.io/aws-weight: "50"
+  hosts:
+    - host: litellm.tinyclover.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: litellm-tls
+      hosts:
+        - litellm.tinyclover.com
+
+masterkeySecretName: "litellm-secret"
+masterkeySecretKey: "LITELLM_MASTER_KEY"
+
+proxyConfigMap:
+  create: true
+
+proxy_config:
+  model_list:
+    - model_name: "anthropic/*"
+      litellm_params:
+        model: "anthropic/*"
+    - model_name: "gemini/*"
+      litellm_params:
+        model: "gemini/*"
+    - model_name: "gpt-*"
+      litellm_params:
+        model: "openai/gpt-*"
+    - model_name: "text-embedding-3-small"
+      litellm_params:
+        model: "openai/text-embedding-3-small"
+  general_settings:
+    store_model_in_db: true
+    store_prompts_in_spend_logs: true
+    database_connection_pool_limit: 10 # https://docs.litellm.ai/docs/proxy/prod
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+db:
+  useExisting: true
+  deployStandalone: false
+  database: postgres
+  secret:
+    name: litellm-secret
+    usernameKey: DATABASE_USERNAME
+    passwordKey: DATABASE_PASSWORD
+    endpointKey: DATABASE_HOST
+
+redis:
+  enabled: false
+  architecture: standalone
+
+extraEnvVars:
+  - name: DATABASE_SCHEMA
+    value: "litellm"
+  - name: USE_PRISMA_MIGRATE
+    value: "true"

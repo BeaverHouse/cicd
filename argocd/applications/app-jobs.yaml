@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-jobs-application
+  namespace: argo-project
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/BeaverHouse/cicd.git
+    targetRevision: main
+    path: charts/app-jobs
+  destination:
+    name: oke
+    namespace: jobs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        custom-image: "true"
+    syncOptions:
+      - CreateNamespace=true

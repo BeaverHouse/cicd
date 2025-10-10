@@ -1,0 +1,32 @@
+env:
+  - name: AWS_DEFAULT_REGION
+    value: ap-northeast-2
+  - name: AWS_SHARED_CREDENTIALS_FILE
+    value: /.aws/credentials
+
+sources:
+  - ingress
+
+policy: sync
+
+domainFilters:
+  - "haulrest.me"
+  - "tinyclover.com"
+
+serviceAccount:
+  create: true
+  name: external-dns
+
+extraArgs:
+  - --aws-prefer-cname
+  - --txt-prefix=cloud-external-dns-
+
+extraVolumeMounts:
+  - name: aws-credentials
+    mountPath: /.aws
+    readOnly: true
+
+extraVolumes:
+  - name: aws-credentials
+    secret:
+      secretName: external-dns-aws-credentials

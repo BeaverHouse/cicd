@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-litellm-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-litellm-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      sources:
+        - repoURL: ghcr.io/berriai
+          targetRevision: 0.1.768
+          chart: litellm-helm
+          helm:
+            releaseName: "litellm"
+            valueFiles:
+              - $customRepo/charts/oss-litellm/values.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          path: charts/oss-litellm/resources
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          ref: customRepo
+      destination:
+        name: "{{ .cluster }}"
+        namespace: litellm
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            custom-image: "true"
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

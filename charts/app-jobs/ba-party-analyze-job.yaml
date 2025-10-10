@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ba-party-analyze-job
+spec:
+  completions: 1
+  template:
+    metadata:
+      labels:
+        app: ba-party-analyze
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: ba-party-analyzer
+          image: ghcr.io/beaverhouse/tinyclover-ba-party-analyzer:0.1.3
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: ba-party-analyze-secret
+          env:
+            - name: GO_ENV
+              value: "production"

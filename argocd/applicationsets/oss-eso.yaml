@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-eso-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-eso-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: external-secrets
+      sources:
+        - repoURL: https://charts.external-secrets.io
+          targetRevision: 0.18.2
+          chart: external-secrets
+          helm:
+            releaseName: "external-secrets"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

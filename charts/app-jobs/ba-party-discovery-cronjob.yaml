@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ba-party-discovery-cronjob
+spec:
+  schedule: "0 */3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ba-party-discovery
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-secret
+          containers:
+            - name: ba-party-discovery
+              image: ghcr.io/beaverhouse/tinyclover-ba-discovery:0.1.3
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: ba-party-analyze-secret
+              env:
+                - name: GO_ENV
+                  value: "production"
+                - name: CONTENT_ID
+                  value: "S82-0"

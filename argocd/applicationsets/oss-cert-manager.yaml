@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-cert-manager-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+          - name: home
+            project: home-server
+            cluster: in-cluster
+  template:
+    metadata:
+      name: "oss-cert-manager-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: cert-manager
+      sources:
+        - repoURL: https://charts.jetstack.io
+          targetRevision: v1.18.2
+          chart: cert-manager
+          helm:
+            releaseName: cert-manager
+            parameters:
+              - name: crds.enabled
+                value: "true"
+              - name: extraArgs
+                value: "{--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53\\,1.1.1.1:53}"
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          path: charts/oss-cert-manager/resources
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

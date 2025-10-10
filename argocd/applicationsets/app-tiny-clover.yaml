@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: app-tiny-clover
+  namespace: argo-project
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            valuesFile: oke.yaml
+            cluster: oke
+  template:
+    metadata:
+      name: "tiny-clover-{{ .name }}"
+      labels:
+        app.kubernetes.io/name: "tiny-clover"
+        app.kubernetes.io/part-of: tiny-clover
+        app.kubernetes.io/cluster: "{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      source:
+        repoURL: https://github.com/BeaverHouse/cicd.git
+        targetRevision: main
+        path: charts/app-tiny-clover
+        helm:
+          valueFiles:
+            - values/{{ .valuesFile }}
+      destination:
+        name: "{{ .cluster }}"
+        namespace: tiny-clover
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            custom-image: "true"
+        syncOptions:
+          - CreateNamespace=true

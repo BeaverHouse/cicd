@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-external-dns-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-external-dns-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: kube-system
+      sources:
+        - repoURL: https://kubernetes-sigs.github.io/external-dns/
+          targetRevision: 1.18.0
+          chart: external-dns
+          helm:
+            releaseName: "external-dns"
+            valueFiles:
+              - $values/charts/oss-external-dns/values/values-{{ .name }}.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          path: charts/oss-external-dns/resources
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          path: charts/oss-external-dns
+          ref: values
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        # Not creating namespace, because it is already created by the cluster.

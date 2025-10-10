@@ -1,0 +1,91 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/beaverhouse/file-server-rust
+  pullPolicy: IfNotPresent
+  tag: "sha-38d6be8"
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+nameOverride: "file-server"
+fullnameOverride: "file-server"
+
+serviceAccount:
+  create: false
+
+service:
+  type: ClusterIP
+  api:
+    port: 8080
+  mcp:
+    enabled: false
+    port: 3000
+
+resources:
+  limits:
+    cpu: 50m
+    memory: 256Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+
+# Health check configuration
+livenessProbe:
+  httpGet:
+    path: /file
+    port: api
+  periodSeconds: 90
+
+readinessProbe:
+  httpGet:
+    path: /file
+    port: api
+  periodSeconds: 90
+
+# ExternalSecret configuration
+externalSecret:
+  enabled: true
+  data:
+    - secretKey: "PG__URL"
+      remoteRef:
+        key: "LEGACY_PG_URL"
+    - secretKey: "ORACLE_FAMILY_RW_ENDPOINT"
+      remoteRef:
+        key: "LEGACY_ORACLE_FAMILY_RW_ENDPOINT"
+    - secretKey: "ORACLE_AECHECK_W_ENDPOINT"
+      remoteRef:
+        key: "LEGACY_ORACLE_AECHECK_W_ENDPOINT"
+    - secretKey: "ORACLE_AECHECK_R_ENDPOINT"
+      remoteRef:
+        key: "LEGACY_ORACLE_AECHECK_R_ENDPOINT"
+    - secretKey: "API_KEY"
+      remoteRef:
+        key: "LEGACY_API_KEY"
+
+# Ingress configuration (without external-dns annotation to avoid conflicts)
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: v1.api.haulrest.me
+      paths:
+        - path: /file
+          pathType: Prefix
+  tls:
+    - secretName: file-server-tls
+      hosts:
+        - v1.api.haulrest.me
+
+# Custom deployment configuration for environment variables
+envFrom:
+  - secretRef:
+      name: file-server-secret

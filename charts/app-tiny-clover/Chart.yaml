@@ -1,0 +1,33 @@
+apiVersion: v2
+name: app-tiny-clover
+description: Umbrella chart for tiny-clover applications
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  - name: backend-go
+    alias: ba-analyzer
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: ba-analyzer.enabled
+  - name: backend-go
+    alias: file-manager
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: file-manager.enabled
+  - name: backend-go
+    alias: llm-client
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: llm-client.enabled
+  - name: backend-go
+    alias: data-aggregator
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: data-aggregator.enabled
+  - name: backend-go
+    alias: life-organizer
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: life-organizer.enabled

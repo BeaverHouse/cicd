@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-metrics-server-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-metrics-server-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: kube-system
+      sources:
+        - repoURL: https://kubernetes-sigs.github.io/metrics-server/
+          targetRevision: 3.13.0
+          chart: metrics-server
+          helm:
+            releaseName: "metrics-server"
+            parameters:
+              - name: replicas
+                value: "2"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        # Not creating namespace, because it is already created by the cluster.

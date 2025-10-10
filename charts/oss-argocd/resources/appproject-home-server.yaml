@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: home-server
+  namespace: argo-project
+spec:
+  description: Project for home server K8s. (Using my Mac mini)
+  destinations:
+    - name: in-cluster
+      namespace: "*"
+      server: "*"
+  sourceRepos:
+    - "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
