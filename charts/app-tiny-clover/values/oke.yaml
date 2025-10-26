@@ -37,10 +37,6 @@ common-supabase-secrets: &common-supabase-secrets
     remoteRef:
       key: "SUPABASE_JWT_KEYFUNC_URL"
 
-common-production-env: &common-production-env
-  - name: GO_ENV
-    value: "production"
-
 common-probe-settings: &common-probe-settings
   periodSeconds: 120
 
@@ -102,7 +98,6 @@ ba-analyzer:
   envFrom:
     - secretRef:
         name: ba-analyzer-secret
-  extraEnv: *common-production-env
 
 file-manager:
   enabled: true
@@ -177,7 +172,6 @@ file-manager:
   envFrom:
     - secretRef:
         name: file-manager-secret
-  extraEnv: *common-production-env
 
 llm-client:
   enabled: true
@@ -232,7 +226,6 @@ llm-client:
     - secretRef:
         name: llm-client-secret
   extraEnv:
-    <<: *common-production-env
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
 
@@ -295,7 +288,6 @@ data-aggregator:
     - secretRef:
         name: data-aggregator-secret
   extraEnv:
-    <<: *common-production-env
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
 
@@ -348,7 +340,6 @@ life-organizer:
     - secretRef:
         name: life-organizer-secret
   extraEnv:
-    <<: *common-production-env
     - name: MCP_BASE_URL
       value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
 
@@ -399,4 +390,3 @@ service-api:
   envFrom:
     - secretRef:
         name: service-api-secret
-  extraEnv: *common-production-env

@@ -142,3 +142,7 @@ externalSecret:
     # - secretKey: "DATABASE_URL"
     #   remoteRef:
     #     key: "DATABASE_URL"
+
+extraEnv:
+  - name: GO_ENV
+    value: "production"
