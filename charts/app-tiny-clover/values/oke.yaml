@@ -9,6 +9,44 @@ common-resources: &common-resources
     cpu: 10m
     memory: 128Mi
 
+common-image-pull-secrets: &common-image-pull-secrets
+  - name: ghcr-secret
+
+common-service-account: &common-service-account
+  create: false
+
+common-ingress-class: &common-ingress-class
+  className: "nginx"
+
+common-ingress-annotations: &common-ingress-annotations
+  cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+  nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
+  external-dns.alpha.kubernetes.io/aws-weight: "50"
+
+common-supabase-secrets: &common-supabase-secrets
+  - secretKey: "POSTGRES_HOST"
+    remoteRef:
+      key: "SUPABASE_POSTGRES_HOST"
+  - secretKey: "POSTGRES_USER"
+    remoteRef:
+      key: "SUPABASE_POSTGRES_USER"
+  - secretKey: "POSTGRES_PASSWORD"
+    remoteRef:
+      key: "SUPABASE_POSTGRES_PASSWORD"
+  - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+    remoteRef:
+      key: "SUPABASE_JWT_KEYFUNC_URL"
+
+common-production-env: &common-production-env
+  - name: GO_ENV
+    value: "production"
+
+common-probe-settings: &common-probe-settings
+  periodSeconds: 120
+
 ba-analyzer:
   enabled: true
   replicaCount: 2
@@ -16,12 +54,10 @@ ba-analyzer:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
     pullPolicy: IfNotPresent
     tag: "300ce5fc"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "ba-analyzer"
   fullnameOverride: "ba-analyzer"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -33,27 +69,16 @@ ba-analyzer:
     httpGet:
       path: /ba-analyzer/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /ba-analyzer/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      <<: *common-supabase-secrets
       - secretKey: "GEMINI_API_KEY"
         remoteRef:
           key: "GEMINI_API_KEY"
@@ -62,18 +87,13 @@ ba-analyzer:
           key: "YOUTUBE_API_KEY"
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+      <<: *common-ingress-annotations
       nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -86,9 +106,7 @@ ba-analyzer:
   envFrom:
     - secretRef:
         name: ba-analyzer-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
+  extraEnv: *common-production-env
 
 file-manager:
   enabled: true
@@ -97,12 +115,10 @@ file-manager:
     repository: ghcr.io/beaverhouse/tinyclover-file-manager
     pullPolicy: IfNotPresent
     tag: "5c61b69b"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "file-manager"
   fullnameOverride: "file-manager"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -114,12 +130,12 @@ file-manager:
     httpGet:
       path: /file-manager/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /file-manager/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
     data:
@@ -146,18 +162,14 @@ file-manager:
           key: "SUPABASE_PUBLIC_S3_BUCKET_NAME"
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      <<: *common-ingress-annotations
       nginx.ingress.kubernetes.io/proxy-body-size: "100m"
       nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -170,9 +182,7 @@ file-manager:
   envFrom:
     - secretRef:
         name: file-manager-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
+  extraEnv: *common-production-env
 
 llm-client:
   enabled: true
@@ -181,12 +191,10 @@ llm-client:
     repository: ghcr.io/beaverhouse/tinyclover-llm-client
     pullPolicy: IfNotPresent
     tag: "da65154b"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "llm-client"
   fullnameOverride: "llm-client"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -198,41 +206,25 @@ llm-client:
     httpGet:
       path: /v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      <<: *common-supabase-secrets
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+      <<: *common-ingress-annotations
       external-dns.alpha.kubernetes.io/hostname: "llm.tinyclover.com"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
     hosts:
       - host: llm.tinyclover.com
         paths:
@@ -246,8 +238,7 @@ llm-client:
     - secretRef:
         name: llm-client-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    <<: *common-production-env
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
 
@@ -258,12 +249,10 @@ data-aggregator:
     repository: ghcr.io/beaverhouse/tinyclover-data-aggregator
     pullPolicy: IfNotPresent
     tag: "59fc13c4"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "data-aggregator"
   fullnameOverride: "data-aggregator"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -276,27 +265,16 @@ data-aggregator:
     httpGet:
       path: /data-aggregator/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /data-aggregator/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      <<: *common-supabase-secrets
       - secretKey: "NAVER_CLIENT_ID"
         remoteRef:
           key: "NAVER_CLIENT_ID"
@@ -308,14 +286,9 @@ data-aggregator:
           key: "BRAVE_SEARCH_API_KEY"
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
+      <<: *common-ingress-annotations
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -329,8 +302,7 @@ data-aggregator:
     - secretRef:
         name: data-aggregator-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    <<: *common-production-env
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
 
@@ -341,12 +313,10 @@ life-organizer:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
     pullPolicy: IfNotPresent
     tag: "03de9d63"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "life-organizer"
   fullnameOverride: "life-organizer"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -359,37 +329,20 @@ life-organizer:
     httpGet:
       path: /life-organizer/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /life-organizer/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+    data: *common-supabase-secrets
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
+      <<: *common-ingress-annotations
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -403,8 +356,7 @@ life-organizer:
     - secretRef:
         name: life-organizer-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    <<: *common-production-env
     - name: MCP_BASE_URL
       value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
 
@@ -415,12 +367,10 @@ service-api:
     repository: ghcr.io/beaverhouse/tinyclover-service-api
     pullPolicy: IfNotPresent
     tag: "dd3a3e7a"
-  imagePullSecrets:
-    - name: ghcr-secret
+  imagePullSecrets: *common-image-pull-secrets
   nameOverride: "service-api"
   fullnameOverride: "service-api"
-  serviceAccount:
-    create: false
+  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -432,37 +382,20 @@ service-api:
     httpGet:
       path: /service-api/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   readinessProbe:
     httpGet:
       path: /service-api/v1/health
       port: api
-    periodSeconds: 120
+    <<: *common-probe-settings
   externalSecret:
     enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+    data: *common-supabase-secrets
   ingress:
     enabled: true
-    className: "nginx"
+    <<: *common-ingress-class
     annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-      external-dns.alpha.kubernetes.io/aws-weight: "50"
+      <<: *common-ingress-annotations
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -475,6 +408,4 @@ service-api:
   envFrom:
     - secretRef:
         name: service-api-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
+  extraEnv: *common-production-env
