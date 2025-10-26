@@ -12,9 +12,6 @@ common-resources: &common-resources
 common-image-pull-secrets: &common-image-pull-secrets
   - name: ghcr-secret
 
-common-service-account: &common-service-account
-  create: false
-
 common-ingress-class: &common-ingress-class
   className: "nginx"
 
@@ -57,7 +54,6 @@ ba-analyzer:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "ba-analyzer"
   fullnameOverride: "ba-analyzer"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -118,7 +114,6 @@ file-manager:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "file-manager"
   fullnameOverride: "file-manager"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -194,7 +189,6 @@ llm-client:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "llm-client"
   fullnameOverride: "llm-client"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -252,7 +246,6 @@ data-aggregator:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "data-aggregator"
   fullnameOverride: "data-aggregator"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -316,7 +309,6 @@ life-organizer:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "life-organizer"
   fullnameOverride: "life-organizer"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
@@ -370,7 +362,6 @@ service-api:
   imagePullSecrets: *common-image-pull-secrets
   nameOverride: "service-api"
   fullnameOverride: "service-api"
-  serviceAccount: *common-service-account
   service:
     type: ClusterIP
     api:
