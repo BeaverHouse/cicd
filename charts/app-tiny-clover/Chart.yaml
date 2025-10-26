@@ -31,3 +31,8 @@ dependencies:
     version: "0.1.0"
     repository: "file://../../templates/backend-go"
     condition: life-organizer.enabled
+  - name: backend-go
+    alias: service-api
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: service-api.enabled

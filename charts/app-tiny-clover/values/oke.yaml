@@ -407,3 +407,74 @@ life-organizer:
       value: "production"
     - name: MCP_BASE_URL
       value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
+
+service-api:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-service-api
+    pullPolicy: IfNotPresent
+    tag: "dd3a3e7a"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "service-api"
+  fullnameOverride: "service-api"
+  serviceAccount:
+    create: false
+  service:
+    type: ClusterIP
+    api:
+      port: 5050
+    mcp:
+      enabled: false
+  resources: *common-resources
+  livenessProbe:
+    httpGet:
+      path: /service-api/v1/health
+      port: api
+    periodSeconds: 120
+  readinessProbe:
+    httpGet:
+      path: /service-api/v1/health
+      port: api
+    periodSeconds: 120
+  externalSecret:
+    enabled: true
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
+      external-dns.alpha.kubernetes.io/aws-weight: "50"
+    hosts:
+      - host: api.tinyclover.com
+        paths:
+          - path: /service-api/v1
+            pathType: Prefix
+    tls:
+      - secretName: service-api-tls
+        hosts:
+          - api.tinyclover.com
+  envFrom:
+    - secretRef:
+        name: service-api-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
