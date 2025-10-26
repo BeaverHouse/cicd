@@ -9,12 +9,6 @@ common-resources: &common-resources
     cpu: 10m
     memory: 128Mi
 
-common-image-pull-secrets: &common-image-pull-secrets
-  - name: ghcr-secret
-
-common-ingress-class: &common-ingress-class
-  className: "nginx"
-
 common-ingress-annotations: &common-ingress-annotations
   cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
   nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -26,23 +20,6 @@ common-ingress-annotations: &common-ingress-annotations
   external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
   external-dns.alpha.kubernetes.io/aws-weight: "50"
 
-common-supabase-secrets: &common-supabase-secrets
-  - secretKey: "POSTGRES_HOST"
-    remoteRef:
-      key: "SUPABASE_POSTGRES_HOST"
-  - secretKey: "POSTGRES_USER"
-    remoteRef:
-      key: "SUPABASE_POSTGRES_USER"
-  - secretKey: "POSTGRES_PASSWORD"
-    remoteRef:
-      key: "SUPABASE_POSTGRES_PASSWORD"
-  - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-    remoteRef:
-      key: "SUPABASE_JWT_KEYFUNC_URL"
-
-common-probe-settings: &common-probe-settings
-  periodSeconds: 120
-
 ba-analyzer:
   enabled: true
   replicaCount: 2
@@ -50,7 +27,8 @@ ba-analyzer:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
     pullPolicy: IfNotPresent
     tag: "300ce5fc"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "ba-analyzer"
   fullnameOverride: "ba-analyzer"
   service:
@@ -64,16 +42,27 @@ ba-analyzer:
     httpGet:
       path: /ba-analyzer/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /ba-analyzer/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
     data:
-      <<: *common-supabase-secrets
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
       - secretKey: "GEMINI_API_KEY"
         remoteRef:
           key: "GEMINI_API_KEY"
@@ -82,7 +71,7 @@ ba-analyzer:
           key: "YOUTUBE_API_KEY"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
@@ -106,7 +95,8 @@ file-manager:
     repository: ghcr.io/beaverhouse/tinyclover-file-manager
     pullPolicy: IfNotPresent
     tag: "5c61b69b"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "file-manager"
   fullnameOverride: "file-manager"
   service:
@@ -120,12 +110,12 @@ file-manager:
     httpGet:
       path: /file-manager/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /file-manager/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
     data:
@@ -152,7 +142,7 @@ file-manager:
           key: "SUPABASE_PUBLIC_S3_BUCKET_NAME"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
       nginx.ingress.kubernetes.io/proxy-body-size: "100m"
@@ -177,7 +167,8 @@ llm-client:
     repository: ghcr.io/beaverhouse/tinyclover-llm-client
     pullPolicy: IfNotPresent
     tag: "da65154b"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "llm-client"
   fullnameOverride: "llm-client"
   service:
@@ -191,22 +182,33 @@ llm-client:
     httpGet:
       path: /v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
     data:
-      <<: *common-supabase-secrets
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
       external-dns.alpha.kubernetes.io/hostname: "llm.tinyclover.com"
@@ -233,7 +235,8 @@ data-aggregator:
     repository: ghcr.io/beaverhouse/tinyclover-data-aggregator
     pullPolicy: IfNotPresent
     tag: "59fc13c4"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "data-aggregator"
   fullnameOverride: "data-aggregator"
   service:
@@ -248,16 +251,27 @@ data-aggregator:
     httpGet:
       path: /data-aggregator/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /data-aggregator/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
     data:
-      <<: *common-supabase-secrets
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
       - secretKey: "NAVER_CLIENT_ID"
         remoteRef:
           key: "NAVER_CLIENT_ID"
@@ -269,7 +283,7 @@ data-aggregator:
           key: "BRAVE_SEARCH_API_KEY"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
     hosts:
@@ -295,7 +309,8 @@ life-organizer:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
     pullPolicy: IfNotPresent
     tag: "03de9d63"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "life-organizer"
   fullnameOverride: "life-organizer"
   service:
@@ -310,18 +325,30 @@ life-organizer:
     httpGet:
       path: /life-organizer/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /life-organizer/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
-    data: *common-supabase-secrets
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
     hosts:
@@ -347,7 +374,8 @@ service-api:
     repository: ghcr.io/beaverhouse/tinyclover-service-api
     pullPolicy: IfNotPresent
     tag: "dd3a3e7a"
-  imagePullSecrets: *common-image-pull-secrets
+  imagePullSecrets:
+    - name: ghcr-secret
   nameOverride: "service-api"
   fullnameOverride: "service-api"
   service:
@@ -361,18 +389,30 @@ service-api:
     httpGet:
       path: /service-api/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   readinessProbe:
     httpGet:
       path: /service-api/v1/health
       port: api
-    <<: *common-probe-settings
+    periodSeconds: 120
   externalSecret:
     enabled: true
-    data: *common-supabase-secrets
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
   ingress:
     enabled: true
-    <<: *common-ingress-class
+    className: "nginx"
     annotations:
       <<: *common-ingress-annotations
     hosts:
