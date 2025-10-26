@@ -87,6 +87,9 @@ ba-analyzer:
   envFrom:
     - secretRef:
         name: ba-analyzer-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
 
 file-manager:
   enabled: true
@@ -159,6 +162,9 @@ file-manager:
   envFrom:
     - secretRef:
         name: file-manager-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
 
 llm-client:
   enabled: true
@@ -225,6 +231,8 @@ llm-client:
     - secretRef:
         name: llm-client-secret
   extraEnv:
+    - name: GO_ENV
+      value: "production"
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
 
@@ -299,6 +307,8 @@ data-aggregator:
     - secretRef:
         name: data-aggregator-secret
   extraEnv:
+    - name: GO_ENV
+      value: "production"
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
 
@@ -364,6 +374,8 @@ life-organizer:
     - secretRef:
         name: life-organizer-secret
   extraEnv:
+    - name: GO_ENV
+      value: "production"
     - name: MCP_BASE_URL
       value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
 
@@ -427,3 +439,6 @@ service-api:
   envFrom:
     - secretRef:
         name: service-api-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
