@@ -20,6 +20,9 @@ common-ingress-annotations: &common-ingress-annotations
   nginx.ingress.kubernetes.io/ssl-redirect: "true"
   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
   nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+  nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+  nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
   external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
   external-dns.alpha.kubernetes.io/aws-weight: "50"
 
@@ -82,9 +85,6 @@ ba-analyzer:
     <<: *common-ingress-class
     annotations:
       <<: *common-ingress-annotations
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
     hosts:
       - host: api.tinyclover.com
@@ -156,9 +156,6 @@ file-manager:
     annotations:
       <<: *common-ingress-annotations
       nginx.ingress.kubernetes.io/proxy-body-size: "100m"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
     hosts:
       - host: api.tinyclover.com
