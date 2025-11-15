@@ -16,6 +16,11 @@ spec:
     spec:
       project: "{{ .project }}"
       sources:
+        # Gateway API CRD 설치 (v1.4.0)
+        - repoURL: https://github.com/kubernetes-sigs/gateway-api.git
+          targetRevision: v1.4.0
+          path: config/crd/standard
+        # NGINX Gateway Fabric 설치
         - repoURL: oci://ghcr.io/nginx/charts/nginx-gateway-fabric
           targetRevision: 2.2.1
           path: .
