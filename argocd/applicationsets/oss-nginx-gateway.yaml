@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-nginx-gateway-applicationset
+spec:
+  goTemplate: true
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-nginx-gateway-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      sources:
+        - repoURL: oci://ghcr.io/nginx/charts
+          targetRevision: 2.2.1
+          chart: nginx-gateway-fabric
+          helm:
+            releaseName: nginx-gateway
+            valueFiles:
+              - $customRepo/charts/oss-nginx-gateway/values.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          ref: customRepo
+      destination:
+        name: "{{ .cluster }}"
+        namespace: nginx-gateway
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
