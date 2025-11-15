@@ -146,20 +146,30 @@ ba-analyzer:
         remoteRef:
           key: "YOUTUBE_API_KEY"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-      external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /ba-analyzer/v1
-            pathType: Prefix
-    tls:
-      - secretName: ba-analyzer-tls
-        hosts:
-          - api.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /ba-analyzer/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: ba-analyzer-secret
@@ -219,21 +229,30 @@ file-manager:
         remoteRef:
           key: "SUPABASE_PUBLIC_S3_BUCKET_NAME"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
-      external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /file-manager/v1
-            pathType: Prefix
-    tls:
-      - secretName: file-manager-tls
-        hosts:
-          - api.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /file-manager/v1
+        timeouts:
+          request: 300s
+          backendRequest: 300s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 100m
+      timeout: 300s
   envFrom:
     - secretRef:
         name: file-manager-secret
@@ -287,20 +306,30 @@ llm-client:
         remoteRef:
           key: "LITELLM_API_KEY"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-llm
+    hostnames:
+      - llm.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-      external-dns.alpha.kubernetes.io/hostname: "llm.tinyclover.com"
-    hosts:
-      - host: llm.tinyclover.com
-        paths:
-          - path: /v1
-            pathType: Prefix
-    tls:
-      - secretName: llm-client-tls
-        hosts:
-          - llm.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: llm.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: llm-client-secret
@@ -363,19 +392,30 @@ data-aggregator:
         remoteRef:
           key: "BRAVE_SEARCH_API_KEY"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /data-aggregator/v1
-            pathType: Prefix
-    tls:
-      - secretName: data-aggregator-tls
-        hosts:
-          - api.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /data-aggregator/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: data-aggregator-secret
@@ -429,19 +469,30 @@ life-organizer:
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /life-organizer/v1
-            pathType: Prefix
-    tls:
-      - secretName: life-organizer-tls
-        hosts:
-          - api.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /life-organizer/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: life-organizer-secret
@@ -494,19 +545,30 @@ service-api:
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
   ingress:
+    enabled: false
+  httproute:
     enabled: true
-    className: "nginx"
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
     annotations:
-      !!merge <<: *common-ingress-annotations
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /service-api/v1
-            pathType: Prefix
-    tls:
-      - secretName: service-api-tls
-        hosts:
-          - api.tinyclover.com
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /service-api/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: service-api-secret
