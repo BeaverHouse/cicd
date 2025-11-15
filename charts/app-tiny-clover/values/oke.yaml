@@ -1,5 +1,9 @@
 # OKE (Oracle Kubernetes Engine) cluster configuration
 
+# Gateway configuration (Phase 1: disabled, Phase 2: enabled)
+gateway:
+  enabled: false
+
 # Common configurations
 common-resources: &common-resources
   limits:

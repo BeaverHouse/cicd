@@ -1,0 +1,27 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: api-gateway
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: https-api
+      protocol: HTTPS
+      port: 443
+      hostname: api.tinyclover.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: api-tinyclover-tls
+    - name: https-llm
+      protocol: HTTPS
+      port: 443
+      hostname: llm.tinyclover.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: llm-tinyclover-tls
+{{- end }}
