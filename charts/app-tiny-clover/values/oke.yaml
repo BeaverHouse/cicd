@@ -90,6 +90,7 @@ ae-analyzer:
       - api.tinyclover.com
     annotations:
       external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "75"
     rules:
       - path:
