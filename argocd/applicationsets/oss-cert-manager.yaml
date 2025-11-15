@@ -24,15 +24,15 @@ spec:
         namespace: cert-manager
       sources:
         - repoURL: https://charts.jetstack.io
-          targetRevision: v1.18.2
+          targetRevision: v1.19.1
           chart: cert-manager
           helm:
             releaseName: cert-manager
-            parameters:
-              - name: crds.enabled
-                value: "true"
-              - name: extraArgs
-                value: "{--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53\\,1.1.1.1:53}"
+            valueFiles:
+              - $customRepo/charts/oss-cert-manager/values.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          ref: customRepo
         - repoURL: https://github.com/BeaverHouse/cicd.git
           targetRevision: main
           path: charts/oss-cert-manager/resources

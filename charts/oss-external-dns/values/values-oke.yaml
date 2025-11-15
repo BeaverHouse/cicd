@@ -6,6 +6,7 @@ env:
 
 sources:
   - ingress
+  - gateway-httproute
 
 policy: sync
 

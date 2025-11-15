@@ -21,7 +21,7 @@ spec:
         namespace: kube-system
       sources:
         - repoURL: https://kubernetes-sigs.github.io/external-dns/
-          targetRevision: 1.18.0
+          targetRevision: 1.19.0
           chart: external-dns
           helm:
             releaseName: "external-dns"
