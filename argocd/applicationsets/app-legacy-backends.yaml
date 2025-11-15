@@ -13,10 +13,6 @@ spec:
             project: cloud
             valuesFile: aecheck.yaml
             cluster: oke
-          - name: file-server
-            project: cloud
-            valuesFile: file.yaml
-            cluster: oke
   template:
     metadata:
       name: "{{ .name }}-legacy"

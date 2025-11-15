@@ -3,7 +3,7 @@ global:
 
 configs:
   params:
-    server.insecure: true
+    server.insecure: true # To disable TLS (SSL termination is held by ingress controller)
   cm:
     url: https://v2.argocd.haulrest.me
     dex.config: |

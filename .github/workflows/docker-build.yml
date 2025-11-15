@@ -141,3 +141,46 @@ jobs:
             ${{ env.REGISTRY }}/${ORG_LOWER}/${{ inputs.repository }}:${SHA}-amd64 \
             ${{ env.REGISTRY }}/${ORG_LOWER}/${{ inputs.repository }}:${SHA}-arm64
           docker manifest push ${{ env.REGISTRY }}/${ORG_LOWER}/${{ inputs.repository }}:${SHA}
+
+  update-helm-values:
+    runs-on: ubuntu-latest
+    needs: [generate-sha, create-manifest]
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT_ORGANIZATION }}
+
+      - name: Extract service name
+        id: service-name
+        run: |
+          SERVICE_NAME=$(echo "${{ inputs.repository }}" | sed 's/^tinyclover-//')
+          echo "service=${SERVICE_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Check if service exists in values
+        id: check-service
+        run: |
+          if yq eval '. | has("${{ steps.service-name.outputs.service }}")' charts/app-tiny-clover/values/oke.yaml | grep -q "true"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Service '${{ steps.service-name.outputs.service }}' not found in values.yaml, skipping update"
+          fi
+
+      - name: Update image tag
+        if: steps.check-service.outputs.exists == 'true'
+        run: |
+          yq eval '.${{ steps.service-name.outputs.service }}.image.tag = "${{ needs.generate-sha.outputs.sha }}"' -i charts/app-tiny-clover/values/oke.yaml
+          echo "Updated ${{ steps.service-name.outputs.service }} tag to ${{ needs.generate-sha.outputs.sha }}"
+
+      - name: Commit and push changes
+        if: steps.check-service.outputs.exists == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add charts/app-tiny-clover/values/oke.yaml
+          git commit -m "Update ${{ steps.service-name.outputs.service }} image tag to ${{ needs.generate-sha.outputs.sha }}"
+          git push
