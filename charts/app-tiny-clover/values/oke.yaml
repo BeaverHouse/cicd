@@ -66,21 +66,7 @@ ae-analyzer:
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
   ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      !!merge <<: *common-ingress-annotations
-      external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
-      external-dns.alpha.kubernetes.io/aws-weight: "25"
-    hosts:
-      - host: api.tinyclover.com
-        paths:
-          - path: /ae-analyzer/v1
-            pathType: Prefix
-    tls:
-      - secretName: ae-analyzer-tls
-        hosts:
-          - api.tinyclover.com
+    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -91,7 +77,7 @@ ae-analyzer:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.alpha.kubernetes.io/aws-weight: "75"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
       - path:
           type: PathPrefix
