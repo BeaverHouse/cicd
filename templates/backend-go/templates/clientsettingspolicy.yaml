@@ -1,4 +1,4 @@
-{{- if .Values.clientSettings.enabled }}
+{{- if and .Values.clientSettings .Values.clientSettings.enabled }}
 apiVersion: gateway.nginx.org/v1alpha1
 kind: ClientSettingsPolicy
 metadata:
