@@ -1,12 +1,8 @@
 # NGINX Gateway Fabric values for OKE
 
-# NGINX 데이터 플레인 설정
+# NGINX control plane 설정
 nginx:
-  kind: daemonSet  # deployment 또는 daemonSet
+  kind: daemonSet # deployment 또는 daemonSet
   service:
     type: LoadBalancer
     externalTrafficPolicy: Local
-    annotations:
-      service.beta.kubernetes.io/oci-load-balancer-shape: flexible
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"

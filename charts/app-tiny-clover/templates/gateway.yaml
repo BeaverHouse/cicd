@@ -4,6 +4,9 @@ kind: Gateway
 metadata:
   name: api-gateway
   annotations:
+    service.beta.kubernetes.io/oci-load-balancer-shape: flexible
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
     cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
 spec:
   gatewayClassName: nginx
