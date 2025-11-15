@@ -2,7 +2,7 @@
 
 # Gateway configuration (Phase 1: disabled, Phase 2: enabled)
 gateway:
-  enabled: false
+  enabled: true
 
 # Common configurations
 common-resources: &common-resources
@@ -71,6 +71,7 @@ ae-analyzer:
     annotations:
       !!merge <<: *common-ingress-annotations
       external-dns.alpha.kubernetes.io/hostname: "api.tinyclover.com"
+      external-dns.alpha.kubernetes.io/aws-weight: "25"
     hosts:
       - host: api.tinyclover.com
         paths:
@@ -80,6 +81,28 @@ ae-analyzer:
       - secretName: ae-analyzer-tls
         hosts:
           - api.tinyclover.com
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
+      external-dns.alpha.kubernetes.io/aws-weight: "75"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /ae-analyzer/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
   envFrom:
     - secretRef:
         name: ae-analyzer-secret
