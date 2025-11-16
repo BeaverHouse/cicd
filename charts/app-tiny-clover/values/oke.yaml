@@ -12,16 +12,6 @@ common-resources: &common-resources
   requests:
     cpu: 10m
     memory: 128Mi
-common-ingress-annotations: &common-ingress-annotations
-  cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
-  nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-  nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-  nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-  nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-  nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
-  external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster"
-  external-dns.alpha.kubernetes.io/aws-weight: "50"
 ae-analyzer:
   enabled: true
   replicaCount: 1
@@ -65,8 +55,6 @@ ae-analyzer:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -145,8 +133,6 @@ ba-analyzer:
       - secretKey: "YOUTUBE_API_KEY"
         remoteRef:
           key: "YOUTUBE_API_KEY"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -228,8 +214,6 @@ file-manager:
       - secretKey: "S3_BUCKET_NAME"
         remoteRef:
           key: "SUPABASE_PUBLIC_S3_BUCKET_NAME"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -305,8 +289,6 @@ llm-client:
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -391,8 +373,6 @@ data-aggregator:
       - secretKey: "BRAVE_SEARCH_API_KEY"
         remoteRef:
           key: "BRAVE_SEARCH_API_KEY"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -468,8 +448,6 @@ life-organizer:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:
@@ -544,8 +522,6 @@ service-api:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
-  ingress:
-    enabled: false
   httproute:
     enabled: true
     parentRefs:

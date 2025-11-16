@@ -6,13 +6,14 @@ Austin Lee's standardized Helm chart template for backend services with dual-por
 
 - **Dual Port Support**: API port for external access and MCP port for internal communication
 - **ExternalSecret Integration**: Optional external secret management with GitLab Variables
-- **Standard Kubernetes Resources**: Deployment, Service, Ingress, HPA and so on (made by `helm create`)
+- **Gateway API Support**: HTTPRoute for external routing with ExternalDNS integration
+- **Standard Kubernetes Resources**: Deployment, Service, HPA and so on (made by `helm create`)
 
 ## Architecture
 
 ### Port Configuration
 
-- **API Port**: Exposed via Ingress for external traffic, managed by ExternalDNS
+- **API Port**: Exposed via HTTPRoute for external traffic, managed by ExternalDNS
 - **MCP Port**: Internal cluster communication only, accessible via port-forwarding for testing
 
 ### External Secrets
@@ -46,24 +47,42 @@ externalSecret:
         key: "SOME_SECRET_IN_GITLAB"
 ```
 
-### Ingress
+### HTTPRoute (Gateway API)
 
 ```yaml
-ingress:
+httproute:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: your-api.example.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
+  parentRefs:
+    - name: your-gateway-name
+      sectionName: https-listener-name
+  hostnames:
+    - your-api.example.com
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: your-api.example.com
+    external-dns.alpha.kubernetes.io/set-identifier: "your-identifier"
+  rules:
+    - path:
+        type: PathPrefix
+        value: /
+      timeouts:
+        request: 60s
+        backendRequest: 60s
+```
+
+### ClientSettings (NGINX Gateway Fabric)
+
+```yaml
+clientSettings:
+  enabled: false
+  body:
+    maxSize: 10m
+    timeout: 60s
 ```
 
 ## Testing network ports
 
-The API port is exposed via Ingress, so you can test it by accessing the Ingress URL.
-The MCP port is not exposed via Ingress, so you need to port-forward to test it.
+The API port is exposed via HTTPRoute, so you can test it by accessing the configured hostname.
+The MCP port is not exposed externally, so you need to port-forward to test it.
 
 ```bash
 # Port forward to access MCP endpoint
@@ -73,6 +92,8 @@ curl http://localhost:3000
 
 ## Dependencies
 
+- **Gateway API**: Required for HTTPRoute functionality
+- **NGINX Gateway Fabric**: Gateway implementation with ClientSettings support
 - **External Secrets Operator**: Required for ExternalSecret functionality
 - **ExternalDNS**: Required for automatic DNS route updates
 - **GitLab ClusterSecretStore**: Required for secret management
