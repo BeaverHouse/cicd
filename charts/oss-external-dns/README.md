@@ -9,7 +9,7 @@ Currently, it is deployed on the cloud cluster, but it can be deployed on any ot
 ## Configuration
 
 - **Provider**: AWS Route 53
-- **Sources**: Ingress resources
+- **Sources**: Ingress or HTTPRoute resources
 - **Policy**: sync (automatic DNS record management)
 - **CNAME Preference**: Uses CNAME records when possible for better performance
 - **TXT Record Prefix**: Differs by cluster
@@ -23,13 +23,22 @@ Currently, it is deployed on the cloud cluster, but it can be deployed on any ot
 
 ## How to use
 
-Add the following annotation to the ingress resource.
+Add the following annotation to the ingress or HTTPRoute resource.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: some-domain-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: some-domain.haulrest.me
+```
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: some-domain-httproute
   annotations:
     external-dns.alpha.kubernetes.io/hostname: some-domain.haulrest.me
 ```
