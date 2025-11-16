@@ -69,9 +69,14 @@ spec:
     spec:
       project: "{{ .project }}"
       sources:
-        - repoURL: oci://ghcr.io/nginx/charts
+        # Gateway API CRD 설치 (v1.4.0)
+        - repoURL: https://github.com/kubernetes-sigs/gateway-api.git
+          targetRevision: v1.4.0
+          path: config/crd/standard
+        # NGINX Gateway Fabric 설치
+        - repoURL: oci://ghcr.io/nginx/charts/nginx-gateway-fabric
           targetRevision: 2.2.1
-          chart: nginx-gateway-fabric
+          path: .
           helm:
             releaseName: nginx-gateway
             valueFiles:
@@ -88,6 +93,7 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true # CRD 설치를 위한 옵션
 ```
 
 **charts/oss-nginx-gateway/values.yaml**
@@ -99,12 +105,9 @@ nginx:
   service:
     type: LoadBalancer
     externalTrafficPolicy: Local
-    annotations:
-      # Oracle Cloud Load Balancer 설정
-      service.beta.kubernetes.io/oci-load-balancer-shape: flexible
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
 ```
+
+> **Note:** OCI LoadBalancer 설정은 Gateway 리소스의 annotations에서 설정합니다.
 
 ### 1.2 cert-manager 업데이트
 
@@ -123,7 +126,7 @@ config:
 
 version: 1.19.0
 
-**charts/oss-external-dns/values/values-cloud.yaml, charts/oss-external-dns/values/values-oke.yaml**
+**charts/oss-external-dns/values/values-oke.yaml**
 
 ```yaml
 external-dns:
@@ -146,6 +149,11 @@ kind: Gateway
 metadata:
   name: api-gateway
   annotations:
+    # Oracle Cloud LoadBalancer 설정
+    service.beta.kubernetes.io/oci-load-balancer-shape: flexible
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
+    # cert-manager 설정
     cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
 spec:
   gatewayClassName: nginx
@@ -177,7 +185,7 @@ https://gateway-api.sigs.k8s.io/api-types/httproute/
 **templates/backend-go/templates/httproute.yaml** : 각 서비스별로 정의합니다.
 
 ```yaml
-{{- if .Values.httproute.enabled }}
+{{- if and .Values.httproute .Values.httproute.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -216,15 +224,16 @@ https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings/
 **templates/backend-go/templates/clientsettingspolicy.yaml** : 각 서비스별로 정의합니다.
 
 ```yaml
-{{- if .Values.clientSettings.enabled }}
+{{- if and .Values.clientSettings .Values.clientSettings.enabled }}
 apiVersion: gateway.nginx.org/v1alpha1
 kind: ClientSettingsPolicy
 metadata:
   name: {{ include "backend-go.fullname" . }}-client
 spec:
-  targetRefs:
-    - kind: HTTPRoute
-      name: {{ include "backend-go.fullname" . }}
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: {{ include "backend-go.fullname" . }}
   body:
     maxSize: {{ .Values.clientSettings.body.maxSize }}
     timeout: {{ .Values.clientSettings.body.timeout }}
@@ -237,9 +246,10 @@ spec:
 
 ---
 
-## Phase 2: PoC
+## Phase 2: Migration
 
-ae-analyzer를 예시로 Gateway API를 적용합니다.
+ae-analyzer를 예시로 설명하겠습니다.  
+도메인을 공유하고 있는 서비스들은 동시에 전환해야 합니다. 그렇지 않으면 간헐적으로 404 에러가 발생할 수 있습니다.
 
 ### 2.1. Gateway API 활성화 (Dual-stack)
 
@@ -301,22 +311,13 @@ ingress.annotations.aws-weight: "0"
 httproute.annotations.aws-weight: "100"
 ```
 
+트래픽 분산은 여러 브라우저에서 확인하거나, nslookup으로 확인할 수 있습니다.
+
 ---
 
-## Phase 3: Migration
+## 주의사항
 
-남은 서비스들을 순차적으로 Gateway API로 마이그레이션합니다.
-
-1. service-api
-2. life-organizer
-3. data-aggregator
-4. **file-manager** (body size 100m)
-5. **llm-client** (다른 도메인 llm.tinyclover.com)
-6. ba-analyzer
-
-주의사항
-
-- BA Analyzer는 사용자가 많으므로 마지막에 천천히 전환합니다.
+- BA Analyzer는 사용자가 많으므로 주의합니다.
 - File Manager는 파일을 처리하기 때문에 설정이 다릅니다.
 
   ```yaml
@@ -334,7 +335,7 @@ httproute.annotations.aws-weight: "100"
 
 ---
 
-## Phase 4: 정리
+## Phase 3: 정리
 
 - Ingress 비활성화
 - NGINX Ingress ApplicationSet 삭제
