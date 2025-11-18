@@ -3,7 +3,6 @@
 # Gateway configuration (Phase 1: disabled, Phase 2: enabled)
 gateway:
   enabled: true
-
 # Common configurations
 common-resources: &common-resources
   limits:
@@ -410,7 +409,7 @@ life-organizer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
     pullPolicy: IfNotPresent
-    tag: "03de9d63"
+    tag: "6fbcfb0b"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "life-organizer"
