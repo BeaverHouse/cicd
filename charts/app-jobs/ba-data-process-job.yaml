@@ -1,24 +1,27 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
   name: ba-data-process-job
 spec:
-  completions: 1
-  template:
-    metadata:
-      labels:
-        app: ba-party-analyze
+  schedule: "0 3 * * *"
+  jobTemplate:
     spec:
-      restartPolicy: Never
-      imagePullSecrets:
-        - name: ghcr-secret
-      containers:
-        - name: ba-data-process
-          image: ghcr.io/beaverhouse/ba-data-process:v0.1.0
-          imagePullPolicy: IfNotPresent
-          envFrom:
-            - secretRef:
-                name: ba-worker-secret
-          env:
-            - name: GO_ENV
-              value: "production"
+      completions: 1
+      template:
+        metadata:
+          labels:
+            app: ba-party-analyze
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-secret
+          containers:
+            - name: ba-data-process
+              image: ghcr.io/beaverhouse/ba-data-process:v0.1.0
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: ba-worker-secret
+              env:
+                - name: GO_ENV
+                  value: "production"
