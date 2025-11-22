@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
-                name: ba-party-analyze-secret
+                name: ba-worker-secret
           env:
             - name: GO_ENV
               value: "production"
