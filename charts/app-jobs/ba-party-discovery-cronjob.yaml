@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: ba-party-discovery-cronjob
+  name: ba-party-discovery-cronjob-1
 spec:
   schedule: "0 */6 * * *"
   jobTemplate:
@@ -30,7 +30,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: ba-party-discovery-cronjob
+  name: ba-party-discovery-cronjob-2
 spec:
   schedule: "0 */6 * * *"
   jobTemplate:
@@ -59,7 +59,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: ba-party-discovery-cronjob
+  name: ba-party-discovery-cronjob-3
 spec:
   schedule: "0 */6 * * *"
   jobTemplate:
