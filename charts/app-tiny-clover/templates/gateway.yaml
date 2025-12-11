@@ -27,4 +27,12 @@ spec:
         mode: Terminate
         certificateRefs:
           - name: llm-tinyclover-tls
+    - name: https-personal-domain
+      protocol: HTTPS
+      port: 443
+      hostname: "*.haulrest.me"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: personal-domain-tls
 {{- end }}
