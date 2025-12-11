@@ -2,14 +2,14 @@
 apiVersion: gateway.nginx.org/v1alpha1
 kind: ClientSettingsPolicy
 metadata:
-  name: {{ include "backend-go.fullname" . }}-client
+  name: {{ include "<CHARTNAME>.fullname" . }}-client
   labels:
-    {{- include "backend-go.labels" . | nindent 4 }}
+    {{- include "<CHARTNAME>.labels" . | nindent 4 }}
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
-    name: {{ include "backend-go.fullname" . }}
+    name: {{ include "<CHARTNAME>.fullname" . }}
   body:
     maxSize: {{ .Values.clientSettings.body.maxSize }}
     timeout: {{ .Values.clientSettings.body.timeout }}
