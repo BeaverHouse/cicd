@@ -18,7 +18,7 @@ spec:
       project: "{{ .project }}"
       sources:
         - repoURL: ghcr.io/berriai
-          targetRevision: 0.4.10
+          targetRevision: 0.1.830
           chart: litellm-helm
           helm:
             releaseName: "litellm"
