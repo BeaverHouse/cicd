@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/berriai/litellm-database
   pullPolicy: IfNotPresent
-  tag: "main-v1.76.3.rc.1"
+  tag: "main-v1.80.8-stable"
 
 imagePullSecrets:
   - name: ghcr-secret
@@ -88,7 +88,5 @@ redis:
   architecture: standalone
 
 extraEnvVars:
-  - name: DATABASE_SCHEMA
-    value: "litellm"
   - name: USE_PRISMA_MIGRATE
     value: "true"
