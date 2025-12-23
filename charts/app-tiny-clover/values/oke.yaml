@@ -89,7 +89,7 @@ ba-analyzer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
     pullPolicy: IfNotPresent
-    tag: "b90083f6"
+    tag: "2b37d532"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "ba-analyzer"
