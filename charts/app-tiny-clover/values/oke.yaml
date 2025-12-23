@@ -325,7 +325,7 @@ data-aggregator:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-data-aggregator
     pullPolicy: IfNotPresent
-    tag: "b0c44f99"
+    tag: "8d2743fb"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "data-aggregator"
