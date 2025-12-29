@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: ba-party-analyze-job
 spec:
-  schedule: "0 */8 * * *"
+  schedule: "0 1 * * *"
   jobTemplate:
     spec:
       completions: 1
