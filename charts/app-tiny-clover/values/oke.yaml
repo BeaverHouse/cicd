@@ -99,7 +99,8 @@ ba-analyzer:
     api:
       port: 8085
     mcp:
-      enabled: false
+      enabled: true
+      port: 8105
   resources: *common-resources
   livenessProbe:
     httpGet:
