@@ -289,6 +289,9 @@ llm-client:
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
+      - secretKey: "BA_ANALYZER_SERVICE_TOKEN"
+        remoteRef:
+          key: "BA_ANALYZER_SERVICE_TOKEN"
   httproute:
     enabled: true
     parentRefs:
