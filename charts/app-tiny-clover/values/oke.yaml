@@ -525,6 +525,9 @@ service-api:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "LEMON_SQUEEZY_WEBHOOK_SECRET"
+        remoteRef:
+          key: "LEMON_SQUEEZY_WEBHOOK_SECRET"
   httproute:
     enabled: true
     parentRefs:
