@@ -25,4 +25,62 @@ spec:
                 - name: GO_ENV
                   value: "production"
                 - name: CONTENT_ID
-                  value: "S85-0"
+                  value: "3S30-2"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ba-party-discovery-cronjob-1
+spec:
+  schedule: "0 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ba-party-discovery
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-secret
+          containers:
+            - name: ba-party-discovery
+              image: ghcr.io/beaverhouse/tinyclover-ba-autodiscovery:v0.1.8
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: ba-worker-secret
+              env:
+                - name: GO_ENV
+                  value: "production"
+                - name: CONTENT_ID
+                  value: "3S30-3"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ba-party-discovery-cronjob-1
+spec:
+  schedule: "0 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ba-party-discovery
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: ghcr-secret
+          containers:
+            - name: ba-party-discovery
+              image: ghcr.io/beaverhouse/tinyclover-ba-autodiscovery:v0.1.8
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: ba-worker-secret
+              env:
+                - name: GO_ENV
+                  value: "production"
+                - name: CONTENT_ID
+                  value: "3S30-4"
