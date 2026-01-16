@@ -160,6 +160,8 @@ jobs:
           SERVICE_NAME=$(echo "${{ inputs.repository }}" | sed 's/^tinyclover-//')
           echo "service=${SERVICE_NAME}" >> $GITHUB_OUTPUT
 
+      # yq is installed in Ubuntu runner by default
+
       - name: Check if service exists in values
         id: check-service
         run: |
