@@ -1,0 +1,24 @@
+# App of ApplicationSets - watches argocd/applicationsets/ directory
+# This Application syncs all ApplicationSet resources in the applicationsets directory
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-applicationsets
+  namespace: argo-project
+spec:
+  project: home-server
+  source:
+    repoURL: https://github.com/BeaverHouse/cicd.git
+    targetRevision: main
+    path: argocd/applicationsets
+    directory:
+      recurse: false
+  destination:
+    name: in-cluster
+    namespace: argo-project
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
