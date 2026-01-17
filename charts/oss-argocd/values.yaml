@@ -1,9 +1,12 @@
+# ArgoCD values for Home Server (Colima + K3s)
+# Uses Gateway API (HTTPRoute) instead of Ingress
+
 global:
   domain: v2.argocd.haulrest.me
 
 configs:
   params:
-    server.insecure: true # To disable TLS (SSL termination is held by ingress controller)
+    server.insecure: true # TLS termination is handled by Gateway
   cm:
     url: https://v2.argocd.haulrest.me
     dex.config: |
@@ -22,11 +25,13 @@ configs:
       g, BeaverHouse:Owner, role:admin
 
 server:
+  # Disable Ingress, use HTTPRoute instead
   ingress:
+    enabled: false
+  # Enable Gateway API HTTPRoute
+  httproute:
     enabled: true
-    ingressClassName: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    tls: true
+    parentRefs:
+      - name: home-gateway
+        namespace: nginx-gateway
+        sectionName: https
