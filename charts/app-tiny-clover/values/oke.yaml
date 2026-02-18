@@ -127,6 +127,9 @@ ba-analyzer:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "SUPABASE_PUBLIC_S3_CDN_URL"
+        remoteRef:
+          key: "SUPABASE_PUBLIC_S3_CDN_URL"
       - secretKey: "GEMINI_API_KEY"
         remoteRef:
           key: "GEMINI_API_KEY"
@@ -289,6 +292,9 @@ llm-client:
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
+      - secretKey: "LITELLM_MASTER_KEY"
+        remoteRef:
+          key: "LITELLM_MASTER_KEY"
       - secretKey: "BA_ANALYZER_SERVICE_TOKEN"
         remoteRef:
           key: "BA_ANALYZER_SERVICE_TOKEN"
