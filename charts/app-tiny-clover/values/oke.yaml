@@ -252,7 +252,7 @@ llm-client:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-llm-client
     pullPolicy: IfNotPresent
-    tag: "11755ed9"
+    tag: "3e24ca34"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "llm-client"
