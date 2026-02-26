@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/berriai/litellm-database
   pullPolicy: IfNotPresent
-  tag: "main-v1.81.3-stable"
+  tag: "main-v1.81.12-stable"
 
 imagePullSecrets:
   - name: ghcr-secret
