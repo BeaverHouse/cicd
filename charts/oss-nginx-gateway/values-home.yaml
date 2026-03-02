@@ -1,0 +1,9 @@
+# NGINX Gateway Fabric values for Home Server (Colima + K3s)
+
+# NGINX control plane 설정
+nginx:
+  kind: daemonSet # deployment 또는 daemonSet
+  service:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    loadBalancerIP: "192.168.0.180" # MetalLB에서 할당받을 고정 IP

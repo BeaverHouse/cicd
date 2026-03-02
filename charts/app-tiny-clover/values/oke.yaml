@@ -17,7 +17,7 @@ ae-analyzer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ae-analyzer
     pullPolicy: IfNotPresent
-    tag: "d22133b1"
+    tag: "8ce28414"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "ae-analyzer"
@@ -89,7 +89,7 @@ ba-analyzer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
     pullPolicy: IfNotPresent
-    tag: "89a578f3"
+    tag: "18208a4e"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "ba-analyzer"
@@ -127,6 +127,9 @@ ba-analyzer:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "SUPABASE_PUBLIC_S3_CDN_URL"
+        remoteRef:
+          key: "SUPABASE_PUBLIC_S3_CDN_URL"
       - secretKey: "GEMINI_API_KEY"
         remoteRef:
           key: "GEMINI_API_KEY"
@@ -168,7 +171,7 @@ file-manager:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-file-manager
     pullPolicy: IfNotPresent
-    tag: "46effd22"
+    tag: "8dbc64de"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "file-manager"
@@ -249,7 +252,7 @@ llm-client:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-llm-client
     pullPolicy: IfNotPresent
-    tag: "6c419e29"
+    tag: "59a8a9dd"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "llm-client"
@@ -289,6 +292,9 @@ llm-client:
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
+      - secretKey: "LITELLM_MASTER_KEY"
+        remoteRef:
+          key: "LITELLM_MASTER_KEY"
       - secretKey: "BA_ANALYZER_SERVICE_TOKEN"
         remoteRef:
           key: "BA_ANALYZER_SERVICE_TOKEN"
@@ -329,7 +335,7 @@ data-aggregator:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-data-aggregator
     pullPolicy: IfNotPresent
-    tag: "ad3dd941"
+    tag: "caebc4dc"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "data-aggregator"
@@ -413,7 +419,7 @@ life-organizer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
     pullPolicy: IfNotPresent
-    tag: "fc7f3b07"
+    tag: "2f782217"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "life-organizer"
@@ -488,7 +494,7 @@ service-api:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-service-api
     pullPolicy: IfNotPresent
-    tag: "cbe0881e"
+    tag: "42d54e1f"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "service-api"
@@ -528,6 +534,12 @@ service-api:
       - secretKey: "LEMON_SQUEEZY_WEBHOOK_SECRET"
         remoteRef:
           key: "LEMON_SQUEEZY_WEBHOOK_SECRET"
+      - secretKey: "LEMON_SQUEEZY_API_KEY"
+        remoteRef:
+          key: "LEMON_SQUEEZY_API_KEY"
+      - secretKey: "LITELLM_MASTER_KEY"
+        remoteRef:
+          key: "LITELLM_MASTER_KEY"
   httproute:
     enabled: true
     parentRefs:
@@ -557,3 +569,5 @@ service-api:
   extraEnv:
     - name: GO_ENV
       value: "production"
+    - name: LITELLM_ENDPOINT
+      value: "http://litellm.litellm.svc.cluster.local:4000"

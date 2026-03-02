@@ -1,0 +1,31 @@
+# Gateway resource for Home Server (Colima + K3s)
+# This Gateway handles all HTTP/HTTPS traffic for home server applications
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: home-gateway
+  namespace: nginx-gateway
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "*.haulrest.me"
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      port: 443
+      protocol: HTTPS
+      hostname: "*.haulrest.me"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: home-gateway-tls
+            kind: Secret
+      allowedRoutes:
+        namespaces:
+          from: All

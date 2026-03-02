@@ -1,16 +1,18 @@
+# App of Apps - watches argocd/applications/ directory
+# This Application syncs all Application resources in the applications directory
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: oss-argocd-config-application
+  name: app-of-apps
   namespace: argo-project
 spec:
-  project: default
+  project: home-server
   source:
     repoURL: https://github.com/BeaverHouse/cicd.git
     targetRevision: main
-    path: charts/oss-argocd/resources
+    path: argocd/applications
     directory:
-      include: "appproject-*.yaml"
+      recurse: false
   destination:
     name: in-cluster
     namespace: argo-project
