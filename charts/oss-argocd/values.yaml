@@ -2,7 +2,7 @@
 # Uses Gateway API (HTTPRoute) instead of Ingress
 
 global:
-  domain: v2.argocd.haulrest.me
+  domain: argocd.haulrest.me
 
 configs:
   params:
@@ -34,4 +34,4 @@ server:
         namespace: nginx-gateway
         sectionName: https
     hostnames:
-      - v2.argocd.haulrest.me
+      - argocd.haulrest.me
