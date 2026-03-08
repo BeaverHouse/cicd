@@ -8,8 +8,7 @@ configs:
   params:
     server.insecure: true # TLS termination is handled by Gateway
   cm:
-    url: https://v2.argocd.haulrest.me
-    # GitHub configuration from https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml#L225-L235
+    # GitHub configuration from https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml#L227-L238
     # You need to create OAuth app from GitHub.
     dex.config: |
       connectors:
@@ -27,9 +26,6 @@ configs:
       g, BeaverHouse:Owner, role:admin
 
 server:
-  # Disable Ingress, use HTTPRoute instead
-  ingress:
-    enabled: false
   # Enable Gateway API HTTPRoute
   httproute:
     enabled: true
@@ -37,3 +33,5 @@ server:
       - name: home-gateway
         namespace: nginx-gateway
         sectionName: https
+    hostnames:
+      - v2.argocd.haulrest.me
