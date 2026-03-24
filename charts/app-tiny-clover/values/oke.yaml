@@ -17,7 +17,7 @@ ae-analyzer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ae-analyzer
     pullPolicy: IfNotPresent
-    tag: "8ce28414"
+    tag: "b31871d4"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "ae-analyzer"
