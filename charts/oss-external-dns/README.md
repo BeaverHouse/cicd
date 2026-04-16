@@ -11,10 +11,9 @@ Currently, it is deployed on the cloud cluster, but it can be deployed on any ot
 - **Provider**: AWS Route 53
 - **Sources**: Ingress or HTTPRoute resources
 - **Policy**: sync (automatic DNS record management)
-- **CNAME Preference**: Uses CNAME records when possible for better performance
-- **TXT Record Prefix**: Differs by cluster
-  - You need to set the diffrernt prefix for each cluster.
-    Otherwise, it will conflict with other clusters and make unintended changes.
+- **CNAME Preference** (`--aws-prefer-cname`): Uses CNAME records when possible for better performance.
+- **TXT Record Prefix** (`--txt-prefix`): Required whenever CNAME preference is enabled — a TXT record cannot share the same name as a CNAME record, so ExternalDNS needs a prefix to place its ownership TXT record alongside the CNAME.
+  - The prefix must also **differ per cluster**. ExternalDNS uses TXT records to decide what it owns, so a shared prefix causes one cluster to delete records managed by another.
 
 ## Domains Supported
 
@@ -42,3 +41,9 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/hostname: some-domain.haulrest.me
 ```
+
+## References
+
+- [ExternalDNS GitHub](https://github.com/kubernetes-sigs/external-dns)
+- [AWS Route 53 provider guide](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md)
+- [Helm chart](https://github.com/kubernetes-sigs/external-dns/tree/master/charts/external-dns)
