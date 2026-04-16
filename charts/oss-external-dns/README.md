@@ -9,7 +9,7 @@ Currently, it is deployed on the cloud cluster, but it can be deployed on any ot
 ## Configuration
 
 - **Provider**: AWS Route 53
-- **Sources**: Ingress or HTTPRoute resources
+- **Sources**: HTTPRoute resources
 - **Policy**: sync (automatic DNS record management)
 - **CNAME Preference** (`--aws-prefer-cname`): Uses CNAME records when possible for better performance.
 - **TXT Record Prefix** (`--txt-prefix`): Required whenever CNAME preference is enabled — a TXT record cannot share the same name as a CNAME record, so ExternalDNS needs a prefix to place its ownership TXT record alongside the CNAME.
@@ -22,24 +22,25 @@ Currently, it is deployed on the cloud cluster, but it can be deployed on any ot
 
 ## How to use
 
-Add the following annotation to the ingress or HTTPRoute resource.
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: some-domain-ingress
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: some-domain.haulrest.me
-```
+ExternalDNS reads hostnames directly from the `spec.hostnames` field of an HTTPRoute — no annotation is required.
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: some-domain-httproute
+spec:
+  hostnames:
+    - some-domain.haulrest.me
+```
+
+For provider-specific behavior (e.g. Route 53 weighted routing), add annotations on the HTTPRoute:
+
+```yaml
+metadata:
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: some-domain.haulrest.me
+    external-dns.alpha.kubernetes.io/set-identifier: "some-cluster"
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
 ```
 
 ## References

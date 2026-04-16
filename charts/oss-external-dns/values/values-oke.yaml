@@ -5,7 +5,6 @@ env:
     value: /.aws/credentials
 
 sources:
-  - ingress
   - gateway-httproute
 
 policy: sync

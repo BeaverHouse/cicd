@@ -58,7 +58,6 @@ httproute:
   hostnames:
     - your-api.example.com
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: your-api.example.com
     external-dns.alpha.kubernetes.io/set-identifier: "your-identifier"
   rules:
     - path:

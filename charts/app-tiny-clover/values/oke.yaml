@@ -62,7 +62,6 @@ ae-analyzer:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -144,7 +143,6 @@ ba-analyzer:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -225,7 +223,6 @@ file-manager:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -306,7 +303,6 @@ llm-client:
     hostnames:
       - llm.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: llm.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -390,7 +386,6 @@ data-aggregator:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -465,7 +460,6 @@ life-organizer:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
@@ -548,7 +542,6 @@ service-api:
     hostnames:
       - api.tinyclover.com
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: api.tinyclover.com
       external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
     rules:
