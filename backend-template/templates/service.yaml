@@ -11,6 +11,9 @@ spec:
       targetPort: api
       protocol: TCP
       name: api
+      {{- if .Values.service.api.appProtocol }}
+      appProtocol: {{ .Values.service.api.appProtocol }}
+      {{- end }}
     {{- if .Values.service.mcp.enabled }}
     - port: {{ .Values.service.mcp.port }}
       targetPort: mcp

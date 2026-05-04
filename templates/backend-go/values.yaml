@@ -22,7 +22,7 @@ fullnameOverride: ""
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   # Specifies whether a service account should be created
-  create: false
+  create: true
   # Automatically mount a ServiceAccount's API credentials?
   automount: true
   # Annotations to add to the service account
@@ -58,6 +58,10 @@ service:
   # API port configuration (exposed via HTTPRoute)
   api:
     port: 80
+    # appProtocol hint for L7-aware infra (service mesh, gateways).
+    # Leave unset for plain HTTP/REST.
+    # Common values: http | http2 | grpc | tcp (use 'tcp' for WebSocket / long-lived connections).
+    # appProtocol: http
   # MCP port configuration (internal only)
   mcp:
     enabled: false
