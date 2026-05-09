@@ -41,3 +41,8 @@ dependencies:
     version: "0.1.0"
     repository: "file://../../templates/backend-go"
     condition: service-api.enabled
+  - name: backend-go
+    alias: food-manager
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: food-manager.enabled

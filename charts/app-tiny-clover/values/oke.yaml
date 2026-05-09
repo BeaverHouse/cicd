@@ -564,3 +564,80 @@ service-api:
       value: "production"
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
+
+food-manager:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-food-manager
+    pullPolicy: IfNotPresent
+    tag: "0.1.0"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "food-manager"
+  fullnameOverride: "food-manager"
+  service:
+    type: ClusterIP
+    api:
+      port: 8084
+    mcp:
+      enabled: true
+      port: 8104
+  resources: *common-resources
+  livenessProbe:
+    httpGet:
+      path: /food-manager/v1/health
+      port: api
+    periodSeconds: 120
+  readinessProbe:
+    httpGet:
+      path: /food-manager/v1/health
+      port: api
+    periodSeconds: 120
+  externalSecret:
+    enabled: true
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
+    annotations:
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /food-manager/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
+  envFrom:
+    - secretRef:
+        name: food-manager-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
+    - name: MCP_BASE_URL
+      value: "http://food-manager.tiny-clover.svc.cluster.local:8104/food-manager/v1"
+    - name: LLM_CLIENT_BASE_URL
+      value: "http://llm-client.tiny-clover.svc.cluster.local:8080"
