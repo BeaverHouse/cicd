@@ -564,14 +564,13 @@ service-api:
       value: "production"
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
-
 food-manager:
   enabled: true
   replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-food-manager
     pullPolicy: IfNotPresent
-    tag: "0.1.0"
+    tag: "ae6f8dd0"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "food-manager"
