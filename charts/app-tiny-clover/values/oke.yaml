@@ -203,6 +203,9 @@ file-manager:
       - secretKey: "POSTGRES_PASSWORD"
         remoteRef:
           key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
       - secretKey: "S3_ENDPOINT"
         remoteRef:
           key: "SUPABASE_PUBLIC_S3_ENDPOINT"
