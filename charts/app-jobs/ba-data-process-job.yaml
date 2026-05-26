@@ -10,7 +10,7 @@ spec:
       template:
         metadata:
           labels:
-            app: ba-party-analyze
+            app: ba-data-process
         spec:
           restartPolicy: Never
           imagePullSecrets:
