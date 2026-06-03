@@ -10,7 +10,7 @@ spec:
     targetRevision: main
     path: charts/app-jobs
   destination:
-    name: oke
+    name: home
     namespace: jobs
   syncPolicy:
     automated:
