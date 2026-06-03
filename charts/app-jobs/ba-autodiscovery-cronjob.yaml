@@ -1,30 +1,31 @@
-# Data processing job (DuckDB-backed aggregation). CPU-bound; runs once daily.
+# Realtime discovery (YouTube-only, slim image). Light + frequent: scans active
+# raids and enqueues new videos. Split from the old combined discovery cronjob.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: ba-data-process-job
+  name: ba-autodiscovery-cronjob
 spec:
-  # KST 05:00 — dawn, just after the monthly reboot window (03:00-05:00).
+  # KST 02:00, 12:00, 22:00. Light job; kept clear of the heavier jobs and of
+  # the monthly reboot window (KST 03:00-05:00 on the 1st).
   timeZone: "Asia/Seoul"
-  schedule: "0 5 * * *"
+  schedule: "0 2,12,22 * * *"
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 600
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
-      completions: 1
       template:
         metadata:
           labels:
-            app: ba-data-process
+            app: ba-autodiscovery
         spec:
           restartPolicy: Never
           imagePullSecrets:
             - name: ghcr-secret
           containers:
-            - name: ba-data-process
-              image: ghcr.io/beaverhouse/ba-data-process:4986365b
+            - name: ba-autodiscovery
+              image: ghcr.io/beaverhouse/ba-autodiscovery:df929fcf
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
@@ -32,11 +33,11 @@ spec:
               env:
                 - name: GO_ENV
                   value: "production"
-              # CPU-bound (DuckDB disk-based + N+1 queries), not memory-heavy.
+              # Light: YouTube API calls only, no browser.
               resources:
                 requests:
-                  cpu: "250m"
-                  memory: "256Mi"
+                  cpu: "50m"
+                  memory: "64Mi"
                 limits:
-                  cpu: "1500m"
-                  memory: "768Mi"
+                  cpu: "500m"
+                  memory: "256Mi"

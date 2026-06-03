@@ -1,9 +1,16 @@
+# Party analysis worker: consumes the queue and analyzes videos via Gemini.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: ba-party-analyze-job
 spec:
-  schedule: "0 1 * * *"
+  # KST 13:00, 21:00 — consumes the queue twice a day, in its own slots.
+  timeZone: "Asia/Seoul"
+  schedule: "0 13,21 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
       completions: 1
@@ -17,7 +24,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-party-analyzer
-              image: ghcr.io/beaverhouse/tinyclover-ba-party-analyzer:v0.2.2
+              image: ghcr.io/beaverhouse/ba-party-analysis:df929fcf
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
@@ -25,3 +32,11 @@ spec:
               env:
                 - name: GO_ENV
                   value: "production"
+              # Moderate: Gemini API calls + thumbnail/metadata fetch.
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "1"
+                  memory: "512Mi"
