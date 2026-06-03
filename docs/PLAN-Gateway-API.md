@@ -149,14 +149,16 @@ kind: Gateway
 metadata:
   name: api-gateway
   annotations:
-    # Oracle Cloud LoadBalancer 설정
-    service.beta.kubernetes.io/oci-load-balancer-shape: flexible
-    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
-    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
     # cert-manager 설정
     cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
 spec:
   gatewayClassName: nginx
+  infrastructure:
+    annotations:
+      # Oracle Cloud LoadBalancer 설정
+      service.beta.kubernetes.io/oci-load-balancer-shape: flexible
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
   listeners:
     - name: https-api
       protocol: HTTPS
