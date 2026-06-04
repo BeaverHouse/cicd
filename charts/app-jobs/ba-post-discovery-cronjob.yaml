@@ -25,7 +25,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-post-discovery
-              image: ghcr.io/beaverhouse/ba-post-discovery:8f5e072b
+              image: ghcr.io/beaverhouse/ba-post-discovery:92d42226
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
