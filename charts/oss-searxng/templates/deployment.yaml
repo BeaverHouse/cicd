@@ -14,6 +14,11 @@ spec:
       labels:
         {{- include "oss-searxng.selectorLabels" . | nindent 8 }}
     spec:
+      # Service is named "searxng", so k8s would inject the legacy docker-link env
+      # SEARXNG_PORT=tcp://<clusterIP>:8080; the image's entrypoint feeds that to
+      # granian --port and crashes ("not a valid integer"). Nothing here needs those
+      # vars, so disable them.
+      enableServiceLinks: false
       initContainers:
         # Copy the ConfigMap settings into a writable volume and inject a random
         # secret_key (busybox: no openssl needed). The key is SearXNG-internal
