@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searxng
+  labels:
+    {{- include "oss-searxng.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "oss-searxng.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "oss-searxng.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+        # Copy the ConfigMap settings into a writable volume and inject a random
+        # secret_key (busybox: no openssl needed). The key is SearXNG-internal
+        # (CSRF/cookies); data-aggregator's stateless JSON queries don't use it,
+        # so a fresh key per pod is fine.
+        - name: init-settings
+          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+          command:
+            - sh
+            - -c
+            - |
+              cp /tmp/cm/settings.yml /etc/searxng/settings.yml
+              key=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
+              sed -i "s|ultrasecretkey|$key|" /etc/searxng/settings.yml
+          volumeMounts:
+            - name: cm
+              mountPath: /tmp/cm
+            - name: config
+              mountPath: /etc/searxng
+      containers:
+        - name: searxng
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SEARXNG_SETTINGS_PATH
+              value: /etc/searxng/settings.yml
+          volumeMounts:
+            - name: config
+              mountPath: /etc/searxng
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: cm
+          configMap:
+            name: searxng-settings
+        - name: config
+          emptyDir: {}
