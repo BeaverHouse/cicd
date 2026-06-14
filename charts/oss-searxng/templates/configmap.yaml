@@ -23,3 +23,10 @@ data:
       formats:
         - html
         - json                       # REQUIRED so data-aggregator can consume JSON
+    # Per-engine overrides (merged onto defaults by name via use_default_settings).
+    # NOTE: settings.yml uses `disabled` (inverse of the /config readout's `enabled`).
+    engines:
+      - name: bing
+        disabled: false              # default-off; bing is datacenter-IP friendly → enable for recall
+      - name: startpage
+        disabled: true               # consistently CAPTCHA-suspended (1h) → dead weight, drop it
