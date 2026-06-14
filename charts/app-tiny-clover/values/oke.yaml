@@ -411,6 +411,8 @@ data-aggregator:
       value: "production"
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
+    - name: SEARXNG_BASE_URL
+      value: "http://searxng.searxng.svc.cluster.local:8080"
 life-organizer:
   enabled: true
   replicaCount: 1
