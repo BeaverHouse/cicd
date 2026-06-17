@@ -13,13 +13,13 @@
   </p>
 
   <p align="center">
-    <a href="https://www.python.org/">
+    <a href="https://kubernetes.io/">
       <img src="https://img.shields.io/badge/Kubernetes-blue.svg?style=flat&logo=Kubernetes&logoColor=white" alt="Kubernetes">
     </a>
-    <a href="https://www.python.org/">
+    <a href="https://helm.sh/">
       <img src="https://img.shields.io/badge/Helm-gray.svg?style=flat&logo=Helm&logoColor=white" alt="Helm">
     </a>
-    <a href="https://python-poetry.org/">
+    <a href="https://argoproj.github.io/cd/">
       <img src="https://img.shields.io/badge/Argo CD-orange.svg?style=flat&logo=Argo&logoColor=white" alt="Argo CD">
     </a>
     <a href="./LICENSE">
