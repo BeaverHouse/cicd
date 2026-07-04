@@ -24,7 +24,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-party-analyzer
-              image: ghcr.io/beaverhouse/ba-party-analysis:e4c6a378
+              image: ghcr.io/beaverhouse/ba-party-analysis:2c883851
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
