@@ -21,7 +21,7 @@ jobs:
       sha: ${{ steps.commit-sha.outputs.sha }}
     steps:
       - name: Checkout target repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ env.ORGANIZATION }}/${{ inputs.repository }}
           token: ${{ secrets.GH_PAT_ORGANIZATION }}
