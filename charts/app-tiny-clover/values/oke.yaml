@@ -206,18 +206,30 @@ file-manager:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
-      - secretKey: "S3_ENDPOINT"
+      - secretKey: "S3_PUBLIC_ENDPOINT"
         remoteRef:
-          key: "SUPABASE_PUBLIC_S3_ENDPOINT"
-      - secretKey: "S3_ACCESS_KEY"
+          key: "SUPABASE_S3_ENDPOINT"
+      - secretKey: "S3_PUBLIC_ACCESS_KEY"
         remoteRef:
-          key: "SUPABASE_PUBLIC_S3_ACCESS_KEY"
-      - secretKey: "S3_SECRET_KEY"
+          key: "SUPABASE_S3_ACCESS_KEY_ID"
+      - secretKey: "S3_PUBLIC_SECRET_KEY"
         remoteRef:
-          key: "SUPABASE_PUBLIC_S3_SECRET_KEY"
-      - secretKey: "S3_BUCKET_NAME"
+          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
+      - secretKey: "S3_PUBLIC_BUCKET_NAME"
         remoteRef:
-          key: "SUPABASE_PUBLIC_S3_BUCKET_NAME"
+          key: "SUPABASE_S3_PUBLIC_BUCKET"
+      - secretKey: "S3_PRIVATE_ENDPOINT"
+        remoteRef:
+          key: "SUPABASE_S3_ENDPOINT"
+      - secretKey: "S3_PRIVATE_ACCESS_KEY"
+        remoteRef:
+          key: "SUPABASE_S3_ACCESS_KEY_ID"
+      - secretKey: "S3_PRIVATE_SECRET_KEY"
+        remoteRef:
+          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
+      - secretKey: "S3_PRIVATE_BUCKET_NAME"
+        remoteRef:
+          key: "SUPABASE_S3_PRIVATE_BUCKET"
   httproute:
     enabled: true
     parentRefs:
