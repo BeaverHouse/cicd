@@ -24,7 +24,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-data-process
-              image: ghcr.io/beaverhouse/ba-data-process:9fc3a947
+              image: ghcr.io/beaverhouse/ba-data-process:ce2eb0b3
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
