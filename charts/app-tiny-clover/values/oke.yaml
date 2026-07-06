@@ -390,6 +390,9 @@ data-aggregator:
       - secretKey: "NAVER_CLIENT_SECRET"
         remoteRef:
           key: "NAVER_CLIENT_SECRET"
+      - secretKey: "TAVILY_API_KEY"
+        remoteRef:
+          key: "TAVILY_API_KEY"
   httproute:
     enabled: true
     parentRefs:
