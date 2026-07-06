@@ -587,7 +587,7 @@ food-manager:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-food-manager
     pullPolicy: IfNotPresent
-    tag: "064841b2"
+    tag: "b17763dd"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "food-manager"
