@@ -3,6 +3,8 @@
 
 global:
   domain: argocd.haulrest.me
+  networkPolicy:
+    create: true
 
 configs:
   params:
