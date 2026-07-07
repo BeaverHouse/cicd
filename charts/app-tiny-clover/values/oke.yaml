@@ -301,10 +301,18 @@ llm-client:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
+      # LITELLM_* entries serve the currently deployed image; remove them
+      # after the Bifrost-cutover image (reads LLM_GATEWAY_*) is deployed.
       - secretKey: "LITELLM_API_KEY"
         remoteRef:
           key: "LITELLM_API_KEY"
       - secretKey: "LITELLM_MASTER_KEY"
+        remoteRef:
+          key: "LITELLM_MASTER_KEY"
+      - secretKey: "LLM_GATEWAY_API_KEY"
+        remoteRef:
+          key: "LITELLM_API_KEY"
+      - secretKey: "LLM_GATEWAY_MASTER_KEY"
         remoteRef:
           key: "LITELLM_MASTER_KEY"
       - secretKey: "BA_ANALYZER_SERVICE_TOKEN"
@@ -338,8 +346,14 @@ llm-client:
   extraEnv:
     - name: GO_ENV
       value: "production"
+    # Used by the currently deployed image; remove after the Bifrost cutover.
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
+    # Bifrost gateway (inference requires the /v1 path).
+    - name: LLM_GATEWAY_ENDPOINT
+      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
+    - name: GATEWAY_GOVERNANCE
+      value: "bifrost"
 data-aggregator:
   enabled: true
   replicaCount: 2
@@ -548,7 +562,12 @@ service-api:
       - secretKey: "LEMON_SQUEEZY_API_KEY"
         remoteRef:
           key: "LEMON_SQUEEZY_API_KEY"
+      # LITELLM_MASTER_KEY serves the currently deployed image; remove it
+      # after the Bifrost-cutover image (reads LLM_GATEWAY_*) is deployed.
       - secretKey: "LITELLM_MASTER_KEY"
+        remoteRef:
+          key: "LITELLM_MASTER_KEY"
+      - secretKey: "LLM_GATEWAY_MASTER_KEY"
         remoteRef:
           key: "LITELLM_MASTER_KEY"
   httproute:
@@ -579,8 +598,14 @@ service-api:
   extraEnv:
     - name: GO_ENV
       value: "production"
+    # Used by the currently deployed image; remove after the Bifrost cutover.
     - name: LITELLM_ENDPOINT
       value: "http://litellm.litellm.svc.cluster.local:4000"
+    # Bifrost gateway (inference requires the /v1 path).
+    - name: LLM_GATEWAY_ENDPOINT
+      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
+    - name: GATEWAY_GOVERNANCE
+      value: "bifrost"
 food-manager:
   enabled: true
   replicaCount: 1
