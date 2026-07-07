@@ -42,27 +42,33 @@ bifrost:
 
   # env.* references are resolved by Bifrost at runtime from the injected
   # bifrost-secret — no plaintext credentials in this public repo.
+  # models MUST be ["*"]: since v1.5.0 an empty list denies every model.
+  # Per-user model restriction is handled by llm-client's virtual keys.
   providers:
     gemini:
       keys:
         - name: "gemini-key"
           value: "env.GEMINI_API_KEY"
           weight: 1
+          models: ["*"]
     openai:
       keys:
         - name: "openai-key"
           value: "env.OPENAI_API_KEY"
           weight: 1
+          models: ["*"]
     anthropic:
       keys:
         - name: "anthropic-key"
           value: "env.ANTHROPIC_API_KEY"
           weight: 1
+          models: ["*"]
     xai:
       keys:
         - name: "xai-key"
           value: "env.XAI_API_KEY"
           weight: 1
+          models: ["*"]
 
 storage:
   # Both config store (providers, virtual keys, budgets) and logs store
