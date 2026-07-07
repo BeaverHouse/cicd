@@ -14,3 +14,7 @@ Operational notes:
   (`openssl rand -base64 32`); rotating it invalidates stored provider keys.
 - Virtual keys / budgets are created lazily by llm-client, so no governance
   seeding is needed in values.
+- Bifrost has no schema option, so it connects as a dedicated role
+  (`bifrost_app`, GitLab vars `BIFROST_POSTGRES_USER`/`BIFROST_POSTGRES_PASSWORD`)
+  whose `search_path` is the `bifrost` schema — tables stay out of `public`
+  and the role has no access to service schemas.
