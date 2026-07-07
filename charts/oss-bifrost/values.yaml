@@ -1,0 +1,97 @@
+# Values for the official Bifrost chart (https://maximhq.github.io/bifrost/helm-charts).
+# Replaces oss-litellm as the LLM gateway. Services reach it via
+# LLM_GATEWAY_ENDPOINT=http://bifrost.bifrost.svc.cluster.local:8080/v1
+# (Bifrost requires the /v1 path on inference calls).
+
+replicaCount: 1
+
+image:
+  repository: docker.io/maximhq/bifrost
+  pullPolicy: IfNotPresent
+  tag: "v1.5.12"
+
+nameOverride: "bifrost"
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# All secrets (provider keys, encryption key, DB coordinates) come from the
+# ESO-managed bifrost-secret (resources/bifrost-secret.yaml).
+envFrom:
+  - secretRef:
+      name: bifrost-secret
+
+# Official guidance: GOMEMLIMIT ≈ 90% of the container memory limit
+# (docker-tuning table: 1GB → 900MiB).
+extraEnv:
+  GOMEMLIMIT: "900MiB"
+
+bifrost:
+  # Encrypts provider keys / virtual keys at rest in the config store.
+  encryptionKeySecret:
+    name: bifrost-secret
+    key: BIFROST_ENCRYPTION_KEY
+
+  client:
+    # Internal-only gateway (ClusterIP, no ingress) like litellm was.
+    # llm-client authenticates paid traffic itself via x-bf-vk; free-tier,
+    # embedding and extract paths call without a virtual key.
+    enforceAuthOnInference: false
+
+  # env.* references are resolved by Bifrost at runtime from the injected
+  # bifrost-secret — no plaintext credentials in this public repo.
+  providers:
+    gemini:
+      keys:
+        - name: "gemini-key"
+          value: "env.GEMINI_API_KEY"
+          weight: 1
+    openai:
+      keys:
+        - name: "openai-key"
+          value: "env.OPENAI_API_KEY"
+          weight: 1
+    anthropic:
+      keys:
+        - name: "anthropic-key"
+          value: "env.ANTHROPIC_API_KEY"
+          weight: 1
+    xai:
+      keys:
+        - name: "xai-key"
+          value: "env.XAI_API_KEY"
+          weight: 1
+
+storage:
+  # Both config store (providers, virtual keys, budgets) and logs store
+  # (request logs, spend) live in Postgres — nothing node-local.
+  mode: postgres
+  persistence:
+    enabled: false
+
+postgresql:
+  enabled: false
+  external:
+    enabled: true
+    # host/user are also env.* references (same runtime mechanism the chart
+    # itself uses for the password) so the Supabase endpoint stays out of git.
+    host: "env.BIFROST_POSTGRES_HOST"
+    port: 5432
+    user: "env.BIFROST_POSTGRES_USER"
+    database: postgres
+    sslMode: require
+    existingSecret: "bifrost-secret"
+    passwordKey: "BIFROST_POSTGRES_PASSWORD"
+
+# Official sizing table (docs.getbifrost.ai/deployment-guides/docker-tuning,
+# lowest tier: 100-500 RPS → 1-2 CPU / 512MB-1GB). Range lower bound as
+# requests, upper bound as limits.
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1Gi
+  requests:
+    cpu: 1000m
+    memory: 512Mi

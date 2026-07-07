@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-bifrost-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: oke
+            project: cloud
+            cluster: oke
+  template:
+    metadata:
+      name: "oss-bifrost-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      sources:
+        - repoURL: https://maximhq.github.io/bifrost/helm-charts
+          targetRevision: 2.1.26
+          chart: bifrost
+          helm:
+            releaseName: "bifrost"
+            valueFiles:
+              - $customRepo/charts/oss-bifrost/values.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          path: charts/oss-bifrost/resources
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          ref: customRepo
+      destination:
+        name: "{{ .cluster }}"
+        namespace: bifrost
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            custom-image: "true"
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
