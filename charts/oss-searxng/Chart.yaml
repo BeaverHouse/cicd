@@ -1,6 +1,0 @@
-apiVersion: v2
-name: oss-searxng
-description: SearXNG — cluster-internal metasearch backend for global/EN web search
-type: application
-version: 0.1.0
-appVersion: "2026.6.14"
