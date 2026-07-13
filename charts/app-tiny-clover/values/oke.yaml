@@ -445,7 +445,7 @@ life-organizer:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
     pullPolicy: IfNotPresent
-    tag: "0b57e2cc"
+    tag: "f1f1b75c"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "life-organizer"
