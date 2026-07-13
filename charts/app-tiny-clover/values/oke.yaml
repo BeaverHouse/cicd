@@ -519,7 +519,7 @@ service-api:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-service-api
     pullPolicy: IfNotPresent
-    tag: "146ead9e"
+    tag: "43b18ffd"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "service-api"
