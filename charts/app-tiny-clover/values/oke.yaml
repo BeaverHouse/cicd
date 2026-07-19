@@ -315,9 +315,9 @@ llm-client:
       - secretKey: "LLM_GATEWAY_MASTER_KEY"
         remoteRef:
           key: "LITELLM_MASTER_KEY"
-      - secretKey: "BA_ANALYZER_SERVICE_TOKEN"
+      - secretKey: "GUEST_SERVICE_TOKEN"
         remoteRef:
-          key: "BA_ANALYZER_SERVICE_TOKEN"
+          key: "GUEST_SERVICE_TOKEN"
   httproute:
     enabled: true
     parentRefs:
