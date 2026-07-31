@@ -10,6 +10,7 @@ configs:
   params:
     server.insecure: true # TLS termination is handled by Gateway
   cm:
+    admin.enabled: "false"
     # GitHub configuration from https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml#L227-L238
     # You need to create OAuth app from GitHub.
     dex.config: |
@@ -20,7 +21,6 @@ configs:
         config:
           clientID: $oauth-secret:clientId
           clientSecret: $oauth-secret:clientSecret
-          loadAllGroups: true
           orgs:
             - name: BeaverHouse
   rbac:
