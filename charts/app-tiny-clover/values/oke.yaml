@@ -163,197 +163,6 @@ ba-analyzer:
   extraEnv:
     - name: GO_ENV
       value: "production"
-file-manager:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ghcr.io/beaverhouse/tinyclover-file-manager
-    pullPolicy: IfNotPresent
-    tag: "efaf3aa9"
-  imagePullSecrets:
-    - name: ghcr-secret
-  nameOverride: "file-manager"
-  fullnameOverride: "file-manager"
-  service:
-    type: ClusterIP
-    api:
-      port: 8081
-    mcp:
-      enabled: false
-  resources: *common-resources
-  livenessProbe:
-    httpGet:
-      path: /file-manager/v1/health
-      port: api
-    periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /file-manager/v1/health
-      port: api
-    periodSeconds: 120
-  externalSecret:
-    enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
-      - secretKey: "S3_PUBLIC_ENDPOINT"
-        remoteRef:
-          key: "SUPABASE_S3_ENDPOINT"
-      - secretKey: "S3_PUBLIC_ACCESS_KEY"
-        remoteRef:
-          key: "SUPABASE_S3_ACCESS_KEY_ID"
-      - secretKey: "S3_PUBLIC_SECRET_KEY"
-        remoteRef:
-          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
-      - secretKey: "S3_PUBLIC_BUCKET_NAME"
-        remoteRef:
-          key: "SUPABASE_S3_PUBLIC_BUCKET"
-      - secretKey: "S3_PRIVATE_ENDPOINT"
-        remoteRef:
-          key: "SUPABASE_S3_ENDPOINT"
-      - secretKey: "S3_PRIVATE_ACCESS_KEY"
-        remoteRef:
-          key: "SUPABASE_S3_ACCESS_KEY_ID"
-      - secretKey: "S3_PRIVATE_SECRET_KEY"
-        remoteRef:
-          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
-      - secretKey: "S3_PRIVATE_BUCKET_NAME"
-        remoteRef:
-          key: "SUPABASE_S3_PRIVATE_BUCKET"
-  httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.alpha.kubernetes.io/aws-weight: "100"
-    rules:
-      - path:
-          type: PathPrefix
-          value: /file-manager/v1
-        timeouts:
-          request: 300s
-          backendRequest: 300s
-  clientSettings:
-    enabled: true
-    body:
-      maxSize: 100m
-      timeout: 300s
-  envFrom:
-    - secretRef:
-        name: file-manager-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
-llm-client:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ghcr.io/beaverhouse/tinyclover-llm-client
-    pullPolicy: IfNotPresent
-    tag: "a8db52d2"
-  imagePullSecrets:
-    - name: ghcr-secret
-  nameOverride: "llm-client"
-  fullnameOverride: "llm-client"
-  service:
-    type: ClusterIP
-    api:
-      port: 8080
-    mcp:
-      enabled: false
-  resources: *common-resources
-  livenessProbe:
-    httpGet:
-      path: /v1/health
-      port: api
-    periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /v1/health
-      port: api
-    periodSeconds: 120
-  externalSecret:
-    enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
-      # LITELLM_* entries serve the currently deployed image; remove them
-      # after the Bifrost-cutover image (reads LLM_GATEWAY_*) is deployed.
-      - secretKey: "LITELLM_API_KEY"
-        remoteRef:
-          key: "LITELLM_API_KEY"
-      - secretKey: "LITELLM_MASTER_KEY"
-        remoteRef:
-          key: "LITELLM_MASTER_KEY"
-      - secretKey: "LLM_GATEWAY_API_KEY"
-        remoteRef:
-          key: "LITELLM_API_KEY"
-      - secretKey: "LLM_GATEWAY_MASTER_KEY"
-        remoteRef:
-          key: "LITELLM_MASTER_KEY"
-      - secretKey: "GUEST_SERVICE_TOKEN"
-        remoteRef:
-          key: "GUEST_SERVICE_TOKEN"
-  httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-llm
-    hostnames:
-      - llm.tinyclover.com
-    annotations:
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.alpha.kubernetes.io/aws-weight: "100"
-    rules:
-      - path:
-          type: PathPrefix
-          value: /v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
-  clientSettings:
-    enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
-  envFrom:
-    - secretRef:
-        name: llm-client-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
-    # Used by the currently deployed image; remove after the Bifrost cutover.
-    - name: LITELLM_ENDPOINT
-      value: "http://litellm.litellm.svc.cluster.local:4000"
-    # Bifrost gateway (inference requires the /v1 path).
-    - name: LLM_GATEWAY_ENDPOINT
-      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
-    - name: GATEWAY_GOVERNANCE
-      value: "bifrost"
 data-aggregator:
   enabled: true
   replicaCount: 2
@@ -437,108 +246,34 @@ data-aggregator:
       value: "production"
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
-    - name: SEARXNG_BASE_URL
-      value: "http://searxng.searxng.svc.cluster.local:8080"
-life-organizer:
+    - name: WIKI_ARCHIVE_URL
+      value: "https://codeload.github.com/BeaverHouse/llmwiki-game/tar.gz/refs/heads/main"
+file-manager:
   enabled: true
   replicaCount: 1
   image:
-    repository: ghcr.io/beaverhouse/tinyclover-life-organizer
+    repository: ghcr.io/beaverhouse/tinyclover-file-manager
     pullPolicy: IfNotPresent
-    tag: "6a7d7ebf"
+    tag: "efaf3aa9"
   imagePullSecrets:
     - name: ghcr-secret
-  nameOverride: "life-organizer"
-  fullnameOverride: "life-organizer"
+  nameOverride: "file-manager"
+  fullnameOverride: "file-manager"
   service:
     type: ClusterIP
     api:
-      port: 8083
-    mcp:
-      enabled: true
-      port: 8103
-  resources: *common-resources
-  livenessProbe:
-    httpGet:
-      path: /life-organizer/v1/health
-      port: api
-    periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /life-organizer/v1/health
-      port: api
-    periodSeconds: 120
-  externalSecret:
-    enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
-  httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.alpha.kubernetes.io/aws-weight: "100"
-    rules:
-      - path:
-          type: PathPrefix
-          value: /life-organizer/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
-  clientSettings:
-    enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
-  envFrom:
-    - secretRef:
-        name: life-organizer-secret
-  extraEnv:
-    - name: GO_ENV
-      value: "production"
-    - name: MCP_BASE_URL
-      value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
-service-api:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ghcr.io/beaverhouse/tinyclover-service-api
-    pullPolicy: IfNotPresent
-    tag: "10aede82"
-  imagePullSecrets:
-    - name: ghcr-secret
-  nameOverride: "service-api"
-  fullnameOverride: "service-api"
-  service:
-    type: ClusterIP
-    api:
-      port: 5050
+      port: 8081
     mcp:
       enabled: false
   resources: *common-resources
   livenessProbe:
     httpGet:
-      path: /service-api/v1/health
+      path: /file-manager/v1/health
       port: api
     periodSeconds: 120
   readinessProbe:
     httpGet:
-      path: /service-api/v1/health
+      path: /file-manager/v1/health
       port: api
     periodSeconds: 120
   externalSecret:
@@ -556,20 +291,31 @@ service-api:
       - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
         remoteRef:
           key: "SUPABASE_JWT_KEYFUNC_URL"
-      - secretKey: "LEMON_SQUEEZY_WEBHOOK_SECRET"
+      - secretKey: "S3_PUBLIC_ENDPOINT"
         remoteRef:
-          key: "LEMON_SQUEEZY_WEBHOOK_SECRET"
-      - secretKey: "LEMON_SQUEEZY_API_KEY"
+          key: "SUPABASE_S3_ENDPOINT"
+      - secretKey: "S3_PUBLIC_ACCESS_KEY"
         remoteRef:
-          key: "LEMON_SQUEEZY_API_KEY"
-      # LITELLM_MASTER_KEY serves the currently deployed image; remove it
-      # after the Bifrost-cutover image (reads LLM_GATEWAY_*) is deployed.
-      - secretKey: "LITELLM_MASTER_KEY"
+          key: "SUPABASE_S3_ACCESS_KEY_ID"
+      - secretKey: "S3_PUBLIC_SECRET_KEY"
         remoteRef:
-          key: "LITELLM_MASTER_KEY"
-      - secretKey: "LLM_GATEWAY_MASTER_KEY"
+          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
+      - secretKey: "S3_PUBLIC_BUCKET_NAME"
         remoteRef:
-          key: "LITELLM_MASTER_KEY"
+          key: "SUPABASE_S3_PUBLIC_BUCKET"
+      # Private S3 credentials are same as public because Supabase shares credentials between buckets
+      - secretKey: "S3_PRIVATE_ENDPOINT"
+        remoteRef:
+          key: "SUPABASE_S3_ENDPOINT"
+      - secretKey: "S3_PRIVATE_ACCESS_KEY"
+        remoteRef:
+          key: "SUPABASE_S3_ACCESS_KEY_ID"
+      - secretKey: "S3_PRIVATE_SECRET_KEY"
+        remoteRef:
+          key: "SUPABASE_S3_SECRET_ACCESS_KEY"
+      - secretKey: "S3_PRIVATE_BUCKET_NAME"
+        remoteRef:
+          key: "SUPABASE_S3_PRIVATE_BUCKET"
   httproute:
     enabled: true
     parentRefs:
@@ -583,29 +329,21 @@ service-api:
     rules:
       - path:
           type: PathPrefix
-          value: /service-api/v1
+          value: /file-manager/v1
         timeouts:
-          request: 60s
-          backendRequest: 60s
+          request: 300s
+          backendRequest: 300s
   clientSettings:
     enabled: true
     body:
-      maxSize: 10m
-      timeout: 60s
+      maxSize: 100m
+      timeout: 300s
   envFrom:
     - secretRef:
-        name: service-api-secret
+        name: file-manager-secret
   extraEnv:
     - name: GO_ENV
       value: "production"
-    # Used by the currently deployed image; remove after the Bifrost cutover.
-    - name: LITELLM_ENDPOINT
-      value: "http://litellm.litellm.svc.cluster.local:4000"
-    # Bifrost gateway (inference requires the /v1 path).
-    - name: LLM_GATEWAY_ENDPOINT
-      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
-    - name: GATEWAY_GOVERNANCE
-      value: "bifrost"
 food-manager:
   enabled: true
   replicaCount: 1
@@ -680,5 +418,245 @@ food-manager:
       value: "production"
     - name: MCP_BASE_URL
       value: "http://food-manager.tiny-clover.svc.cluster.local:8104/food-manager/v1"
+    - name: LIFE_ORGANIZER_BASE_URL
+      value: "http://life-organizer.tiny-clover.svc.cluster.local:8083"
     - name: LLM_CLIENT_BASE_URL
       value: "http://llm-client.tiny-clover.svc.cluster.local:8080"
+life-organizer:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-life-organizer
+    pullPolicy: IfNotPresent
+    tag: "6a7d7ebf"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "life-organizer"
+  fullnameOverride: "life-organizer"
+  service:
+    type: ClusterIP
+    api:
+      port: 8083
+    mcp:
+      enabled: true
+      port: 8103
+  resources: *common-resources
+  livenessProbe:
+    httpGet:
+      path: /life-organizer/v1/health
+      port: api
+    periodSeconds: 120
+  readinessProbe:
+    httpGet:
+      path: /life-organizer/v1/health
+      port: api
+    periodSeconds: 120
+  externalSecret:
+    enabled: true
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "FCM_SERVICE_ACCOUNT_JSON"
+        remoteRef:
+          key: "FCM_SERVICE_ACCOUNT_JSON"
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
+    annotations:
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /life-organizer/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
+  envFrom:
+    - secretRef:
+        name: life-organizer-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
+    - name: MCP_BASE_URL
+      value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
+llm-client:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-llm-client
+    pullPolicy: IfNotPresent
+    tag: "a8db52d2"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "llm-client"
+  fullnameOverride: "llm-client"
+  service:
+    type: ClusterIP
+    api:
+      port: 8080
+    mcp:
+      enabled: false
+  resources: *common-resources
+  livenessProbe:
+    httpGet:
+      path: /v1/health
+      port: api
+    periodSeconds: 120
+  readinessProbe:
+    httpGet:
+      path: /v1/health
+      port: api
+    periodSeconds: 120
+  externalSecret:
+    enabled: true
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "GUEST_SERVICE_TOKEN"
+        remoteRef:
+          key: "GUEST_SERVICE_TOKEN"
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-llm
+    hostnames:
+      - llm.tinyclover.com
+    annotations:
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
+  envFrom:
+    - secretRef:
+        name: llm-client-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
+    # Bifrost gateway (inference requires the /v1 path).
+    - name: LLM_GATEWAY_ENDPOINT
+      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
+    - name: GATEWAY_GOVERNANCE
+      value: "bifrost"
+service-api:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-service-api
+    pullPolicy: IfNotPresent
+    tag: "10aede82"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "service-api"
+  fullnameOverride: "service-api"
+  service:
+    type: ClusterIP
+    api:
+      port: 5050
+    mcp:
+      enabled: false
+  resources: *common-resources
+  livenessProbe:
+    httpGet:
+      path: /service-api/v1/health
+      port: api
+    periodSeconds: 120
+  readinessProbe:
+    httpGet:
+      path: /service-api/v1/health
+      port: api
+    periodSeconds: 120
+  externalSecret:
+    enabled: true
+    data:
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_PASSWORD"
+      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+        remoteRef:
+          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - secretKey: "LEMON_SQUEEZY_WEBHOOK_SECRET"
+        remoteRef:
+          key: "LEMON_SQUEEZY_WEBHOOK_SECRET"
+      - secretKey: "LEMON_SQUEEZY_API_KEY"
+        remoteRef:
+          key: "LEMON_SQUEEZY_API_KEY"
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: api-gateway
+        sectionName: https-api
+    hostnames:
+      - api.tinyclover.com
+    annotations:
+      external-dns.alpha.kubernetes.io/set-identifier: "oke-cluster-gateway"
+      external-dns.alpha.kubernetes.io/aws-weight: "100"
+    rules:
+      - path:
+          type: PathPrefix
+          value: /service-api/v1
+        timeouts:
+          request: 60s
+          backendRequest: 60s
+  clientSettings:
+    enabled: true
+    body:
+      maxSize: 10m
+      timeout: 60s
+  envFrom:
+    - secretRef:
+        name: service-api-secret
+  extraEnv:
+    - name: GO_ENV
+      value: "production"
+    # Bifrost gateway (inference requires the /v1 path).
+    - name: LLM_GATEWAY_ENDPOINT
+      value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
+    - name: GATEWAY_GOVERNANCE
+      value: "bifrost"
