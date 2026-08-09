@@ -254,7 +254,7 @@ file-manager:
   image:
     repository: ghcr.io/beaverhouse/tinyclover-file-manager
     pullPolicy: IfNotPresent
-    tag: "efaf3aa9"
+    tag: "acf5a44b"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "file-manager"
