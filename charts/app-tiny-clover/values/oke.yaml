@@ -627,6 +627,9 @@ service-api:
       - secretKey: "LEMON_SQUEEZY_API_KEY"
         remoteRef:
           key: "LEMON_SQUEEZY_API_KEY"
+      - secretKey: "KAKAO_ADMIN_KEY"
+        remoteRef:
+          key: "KAKAO_ADMIN_KEY"
   httproute:
     enabled: true
     parentRefs:
