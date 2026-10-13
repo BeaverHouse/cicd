@@ -46,3 +46,8 @@ dependencies:
     version: "0.1.0"
     repository: "file://../../templates/backend-go"
     condition: food-manager.enabled
+  - name: backend-go
+    alias: llmwiki-bot
+    version: "0.1.0"
+    repository: "file://../../templates/backend-go"
+    condition: llmwiki-bot.enabled

@@ -663,3 +663,73 @@ service-api:
       value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
     - name: GATEWAY_GOVERNANCE
       value: "bifrost"
+llmwiki-bot:
+  # Slack personas that keep the game wikis alive. The pod holds Socket Mode
+  # connections to Slack and runs the wiki agent itself; nothing listens on a
+  # port, so there is no route, no probe, and the Service the shared chart
+  # renders goes unused. The image tag is kept current by the build workflow.
+  enabled: true
+  replicaCount: 1
+  # Two pods would both answer the same Slack events, so a rollout stops the
+  # old pod before the new one starts; the new one finishes what was cut off.
+  strategy:
+    type: Recreate
+  image:
+    repository: ghcr.io/beaverhouse/llmwiki-bot
+    pullPolicy: IfNotPresent
+    tag: "863c5ee3"
+  imagePullSecrets:
+    - name: ghcr-secret
+  nameOverride: "llmwiki-bot"
+  fullnameOverride: "llmwiki-bot"
+  service:
+    type: ClusterIP
+    api:
+      port: 8090
+    mcp:
+      enabled: false
+  # One agent run is a Claude Code process (180-500 MB in normal use, with
+  # runaway cases on record) and two may run at once. The memory limit is what
+  # stops a runaway; a run it kills shows a cross in Slack and is not retried.
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  livenessProbe: null
+  readinessProbe: null
+  externalSecret:
+    enabled: true
+    data:
+      # base64 of one JSON object with every persona's Slack tokens.
+      - secretKey: "SLACK_APPS"
+        remoteRef:
+          key: "LLMWIKI_BOT_SLACK_APPS"
+      - secretKey: "CLAUDE_CODE_OAUTH_TOKEN"
+        remoteRef:
+          key: "LLMWIKI_BOT_CLAUDE_CODE_OAUTH_TOKEN"
+      - secretKey: "GH_TOKEN"
+        remoteRef:
+          key: "LLMWIKI_BOT_GH_TOKEN"
+      - secretKey: "GUEST_SERVICE_TOKEN"
+        remoteRef:
+          key: "GUEST_SERVICE_TOKEN"
+      # Read-only database role for the scheduled checks.
+      - secretKey: "POSTGRES_HOST"
+        remoteRef:
+          key: "SUPABASE_POSTGRES_HOST"
+      - secretKey: "POSTGRES_USER"
+        remoteRef:
+          key: "LLMWIKI_BOT_POSTGRES_USER"
+      - secretKey: "POSTGRES_PASSWORD"
+        remoteRef:
+          key: "LLMWIKI_BOT_POSTGRES_PASSWORD"
+  envFrom:
+    - secretRef:
+        name: llmwiki-bot-secret
+  extraEnv:
+    # The sites' tool server, reached inside the cluster.
+    - name: BATORMENT_MCP_URL
+      value: "http://ba-analyzer.tiny-clover.svc.cluster.local:8105/ba-analyzer/v1/mcp"
