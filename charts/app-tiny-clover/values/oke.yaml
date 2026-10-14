@@ -677,7 +677,7 @@ llmwiki-bot:
   image:
     repository: ghcr.io/beaverhouse/llmwiki-bot
     pullPolicy: IfNotPresent
-    tag: "9c40abff"
+    tag: "d08b3a2e"
   imagePullSecrets:
     - name: ghcr-secret
   nameOverride: "llmwiki-bot"
