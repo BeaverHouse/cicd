@@ -6,6 +6,16 @@ It replaces LiteLLM; per-user governance is driven by llm-client via the
 
 Operational notes:
 
+- Content logging is disabled through `bifrost.client.disableContentLogging`;
+  usage and cost metrics remain available. Before accepting real evaluation
+  data, verify the effective running setting, existing virtual-key overrides,
+  and any separately enabled observability connectors. This change does not
+  erase historical logs or backups; remove those copies under their retention
+  policy and preserve deletion records before restoring a backup.
+- Evaluation artifacts in service-api require an independent random
+  `EVALUATION_ENCRYPTION_KEY` (base64-encoded 32 bytes) in its secret-manager
+  environment. Do not reuse `BIFROST_ENCRYPTION_KEY` or commit either key.
+
 - Inference calls require the `/v1` path — services use
   `LLM_GATEWAY_ENDPOINT=http://bifrost.bifrost.svc.cluster.local:8080/v1`.
 - Config store and logs store both run on the existing Supabase Postgres

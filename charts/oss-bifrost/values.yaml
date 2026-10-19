@@ -35,6 +35,8 @@ bifrost:
     key: BIFROST_ENCRYPTION_KEY
 
   client:
+    # Keep usage/cost metrics without retaining prompts, answers or tool data.
+    disableContentLogging: true
     # Internal-only gateway (ClusterIP, no ingress) like litellm was.
     # llm-client authenticates paid traffic itself via x-bf-vk; free-tier,
     # embedding and extract paths call without a virtual key.
