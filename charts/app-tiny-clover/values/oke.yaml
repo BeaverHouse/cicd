@@ -545,6 +545,9 @@ llm-client:
       - secretKey: "GUEST_SERVICE_TOKEN"
         remoteRef:
           key: "GUEST_SERVICE_TOKEN"
+      - secretKey: "BIFROST_SETUP_TOKEN"
+        remoteRef:
+          key: "BIFROST_SETUP_TOKEN"
   httproute:
     enabled: true
     parentRefs:
@@ -630,6 +633,9 @@ service-api:
       - secretKey: "KAKAO_ADMIN_KEY"
         remoteRef:
           key: "KAKAO_ADMIN_KEY"
+      - secretKey: "BIFROST_SETUP_TOKEN"
+        remoteRef:
+          key: "BIFROST_SETUP_TOKEN"
   httproute:
     enabled: true
     parentRefs:
