@@ -25,7 +25,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-autodiscovery
-              image: ghcr.io/beaverhouse/ba-autodiscovery:b2bef19b
+              image: ghcr.io/beaverhouse/ba-autodiscovery:6cd9d357
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
