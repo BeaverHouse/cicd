@@ -24,7 +24,7 @@ spec:
             - name: ghcr-secret
           containers:
             - name: ba-party-analyzer
-              image: ghcr.io/beaverhouse/ba-party-analysis:6cd9d357
+              image: ghcr.io/beaverhouse/ba-party-analysis:f6add530
               imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
@@ -39,4 +39,4 @@ spec:
                   memory: "128Mi"
                 limits:
                   cpu: "1"
-                  memory: "512Mi"
+                  memory: "1Gi"
