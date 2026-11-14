@@ -9,9 +9,8 @@ spec:
   gatewayClassName: nginx
   infrastructure:
     annotations:
-      service.beta.kubernetes.io/oci-load-balancer-shape: flexible
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
-      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
+      oci.oraclecloud.com/load-balancer-type: nlb
+      oci-network-load-balancer.oraclecloud.com/security-list-management-mode: All
   listeners:
     - name: https-api
       protocol: HTTPS
