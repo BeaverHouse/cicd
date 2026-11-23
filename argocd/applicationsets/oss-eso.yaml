@@ -21,7 +21,7 @@ spec:
         namespace: external-secrets
       sources:
         - repoURL: https://charts.external-secrets.io
-          targetRevision: 0.18.2
+          targetRevision: 2.15.0
           chart: external-secrets
           helm:
             releaseName: "external-secrets"
@@ -31,3 +31,5 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          # The SecretStore CRDs exceed the 256 KiB last-applied annotation limit.
+          - ServerSideApply=true
