@@ -1,5 +1,5 @@
 # Values for the official Bifrost chart (https://maximhq.github.io/bifrost/helm-charts).
-# Replaces oss-litellm as the LLM gateway. Services reach it via
+# Services reach the LLM gateway via
 # LLM_GATEWAY_ENDPOINT=http://bifrost.bifrost.svc.cluster.local:8080/v1
 # (Bifrost requires the /v1 path on inference calls).
 
@@ -37,7 +37,7 @@ bifrost:
   client:
     # Keep usage/cost metrics without retaining prompts, answers or tool data.
     disableContentLogging: true
-    # Internal-only gateway (ClusterIP, no ingress) like litellm was.
+    # Internal-only gateway (ClusterIP, no ingress).
     # llm-client authenticates paid traffic itself via x-bf-vk; free-tier,
     # embedding and extract paths call without a virtual key.
     enforceAuthOnInference: false
@@ -63,12 +63,6 @@ bifrost:
       keys:
         - name: "anthropic-key"
           value: "env.ANTHROPIC_API_KEY"
-          weight: 1
-          models: ["*"]
-    xai:
-      keys:
-        - name: "xai-key"
-          value: "env.XAI_API_KEY"
           weight: 1
           models: ["*"]
 

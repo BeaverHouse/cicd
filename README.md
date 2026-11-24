@@ -48,7 +48,7 @@ graph TD
 
     subgraph oke ["OKE Cluster (Cloud)"]
         oke_core[Core components]
-        oke_oss[Opensource - LiteLLM + @]
+        oke_oss[Opensource - Bifrost + @]
         oke_apps[Tiny Clover apps]
     end
 
@@ -75,10 +75,10 @@ graph TD
 │   ├── app-jobs/            # Background jobs (CronJob, Job)
 │   ├── app-tiny-clover/     # Application suite
 │   ├── oss-argocd/          # Argo CD configuration
+│   ├── oss-bifrost/         # LLM gateway
 │   ├── oss-cert-manager/    # TLS certificate management
 │   ├── oss-eso/             # External Secrets Operator
 │   ├── oss-external-dns/    # Automatic DNS management
-│   ├── oss-litellm/         # LLM proxy service
 │   ├── oss-metallb/         # Bare-metal load balancer
 │   ├── oss-metrics-server/  # Kubernetes metrics
 │   └── oss-nginx-gateway/   # NGINX Gateway Fabric
