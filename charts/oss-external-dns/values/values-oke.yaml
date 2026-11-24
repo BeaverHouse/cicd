@@ -20,9 +20,6 @@ serviceAccount:
 extraArgs:
   - --aws-prefer-cname
   - --txt-prefix=oke-external-dns-
-  # Keeps reading the external-dns.alpha.kubernetes.io/ annotations on the tiny-clover HTTPRoutes.
-  # Remove it once they use external-dns.kubernetes.io/.
-  - --enable-legacy-annotation-prefix
 
 extraVolumeMounts:
   - name: aws-credentials

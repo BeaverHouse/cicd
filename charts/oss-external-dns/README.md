@@ -39,8 +39,8 @@ For provider-specific behavior (e.g. Route 53 weighted routing), add annotations
 ```yaml
 metadata:
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "some-cluster"
-    external-dns.alpha.kubernetes.io/aws-weight: "100"
+    external-dns.kubernetes.io/set-identifier: "some-cluster"
+    external-dns.kubernetes.io/aws-weight: "100"
 ```
 
 ## References
