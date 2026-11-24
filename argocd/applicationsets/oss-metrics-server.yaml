@@ -21,13 +21,16 @@ spec:
         namespace: kube-system
       sources:
         - repoURL: https://kubernetes-sigs.github.io/metrics-server/
-          targetRevision: 3.13.0
+          targetRevision: 3.14.0
           chart: metrics-server
           helm:
             releaseName: "metrics-server"
             parameters:
               - name: replicas
                 value: "2"
+              # Chart 3.14.0 ships v0.9.0. v0.9.1 rebuilds it on Go 1.26.10 without the distrusted eMudhra CA roots.
+              - name: image.tag
+                value: v0.9.1
       syncPolicy:
         automated:
           prune: true
