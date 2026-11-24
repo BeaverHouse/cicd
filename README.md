@@ -69,7 +69,6 @@ graph TD
 ├── argocd/
 │   ├── applications/      # Argo CD Applications (single-cluster)
 │   └── applicationsets/   # Argo CD ApplicationSets (multi-cluster)
-├── backend-template/      # Helm chart scaffold for backend services
 ├── charts/
 │   ├── app-clustersecrets/  # Cluster-wide secret management
 │   ├── app-jobs/            # Background jobs (CronJob, Job)
@@ -83,7 +82,7 @@ graph TD
 │   ├── oss-metrics-server/  # Kubernetes metrics
 │   └── oss-nginx-gateway/   # NGINX Gateway Fabric
 ├── docs/                  # Historical setup documentation
-└── templates/             # Application templates
+└── templates/backend-go/  # Shared Helm chart for backend services
 ```
 
 ## Key Patterns
@@ -120,11 +119,9 @@ GitHub Actions workflow (`docker-build.yml`) handles:
 
 ### Creating a New Backend Service
 
-```bash
-helm create charts/<chart-name> -p $PWD/backend-template
-```
+Add the service to `charts/app-tiny-clover/Chart.yaml` as another alias of the `backend-go` chart, then add a values block under the same alias in `charts/app-tiny-clover/values/oke.yaml`.
 
-The [backend-template](backend-template/) provides:
+The [backend-go](templates/backend-go/) chart provides:
 
 - Dual port support (API + MCP)
 - ExternalSecret integration
