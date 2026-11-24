@@ -1,8 +1,8 @@
 # OSS - Bifrost
 
 Bifrost is the LLM gateway (routing, virtual keys, budgets, request logging).
-It replaces LiteLLM; per-user governance is driven by llm-client via the
-`x-bf-vk` header and the `/api/governance/*` admin API.
+Per-user governance is driven by llm-client via the `x-bf-vk` header and the
+`/api/governance/*` admin API.
 
 Operational notes:
 
