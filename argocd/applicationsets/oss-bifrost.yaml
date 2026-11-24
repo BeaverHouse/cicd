@@ -18,7 +18,7 @@ spec:
       project: "{{ .project }}"
       sources:
         - repoURL: https://maximhq.github.io/bifrost/helm-charts
-          targetRevision: 2.1.26
+          targetRevision: 2.1.49
           chart: bifrost
           helm:
             releaseName: "bifrost"
