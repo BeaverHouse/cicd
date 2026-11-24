@@ -119,7 +119,7 @@ GitHub Actions workflow (`docker-build.yml`) handles:
 
 ### Creating a New Backend Service
 
-For a Go backend, add the service to `charts/app-tiny-clover/Chart.yaml` as another alias of the `backend-go` chart, then add a values block under the same alias in `charts/app-tiny-clover/values/oke.yaml`.
+For a Go backend, add the service as another alias of the `backend-go` chart in the umbrella chart it belongs to (for example `charts/app-tiny-clover/Chart.yaml`), then add a values block under the same alias in that chart's values file.
 
 For any other service, create a new chart, either with `backend-go` as the starter or from scratch:
 
