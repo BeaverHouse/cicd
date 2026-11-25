@@ -78,6 +78,16 @@ clientSettings:
     timeout: 60s
 ```
 
+### Image Pull Secrets
+
+An umbrella chart can list secrets once under `global.imagePullSecrets`. Each service uses them together with its own `imagePullSecrets`, without duplicates.
+
+```yaml
+global:
+  imagePullSecrets:
+    - name: ghcr-secret
+```
+
 ## Testing network ports
 
 The API port is exposed via HTTPRoute, so you can test it by accessing the configured hostname.
