@@ -1,4 +1,5 @@
 # OKE (Oracle Kubernetes Engine) cluster configuration
+# Values equal to backend-go's defaults are left out.
 
 # Gateway configuration (Phase 1: disabled, Phase 2: enabled)
 gateway:
@@ -6,56 +7,33 @@ gateway:
 global:
   imagePullSecrets:
     - name: ghcr-secret
-# Common configurations
-common-resources: &common-resources
-  limits:
-    cpu: 50m
-    memory: 256Mi
-  requests:
-    cpu: 10m
-    memory: 128Mi
-ae-analyzer:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ghcr.io/beaverhouse/tinyclover-ae-analyzer
-    pullPolicy: IfNotPresent
-    tag: "62bb1e96"
-  nameOverride: "ae-analyzer"
-  fullnameOverride: "ae-analyzer"
-  service:
-    type: ClusterIP
-    api:
-      port: 8086
-    mcp:
-      enabled: false
-  resources: *common-resources
-  livenessProbe:
-    httpGet:
-      path: /ae-analyzer/v1/health
-      port: api
-    periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /ae-analyzer/v1/health
-      port: api
-    periodSeconds: 120
-  externalSecret:
-    enabled: true
-    data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
-  httproute:
+# Blocks the services below share through YAML aliases.
+common:
+  resources: &common-resources
+    limits:
+      cpu: 50m
+      memory: 256Mi
+    requests:
+      cpu: 10m
+      memory: 128Mi
+  secrets:
+    - &postgres-host
+      secretKey: "POSTGRES_HOST"
+      remoteRef:
+        key: "SUPABASE_POSTGRES_HOST"
+    - &postgres-user
+      secretKey: "POSTGRES_USER"
+      remoteRef:
+        key: "SUPABASE_POSTGRES_USER"
+    - &postgres-password
+      secretKey: "POSTGRES_PASSWORD"
+      remoteRef:
+        key: "SUPABASE_POSTGRES_PASSWORD"
+    - &jwt-keyfunc-url
+      secretKey: "SUPABASE_JWT_KEYFUNC_URL"
+      remoteRef:
+        key: "SUPABASE_JWT_KEYFUNC_URL"
+  httproute: &api-route
     enabled: true
     parentRefs:
       - name: api-gateway
@@ -65,66 +43,76 @@ ae-analyzer:
     annotations:
       external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
       external-dns.kubernetes.io/aws-weight: "100"
+  timeouts: &default-timeouts
+    request: 60s
+    backendRequest: 60s
+  env:
+    - &go-env
+      name: GO_ENV
+      value: "production"
+ae-analyzer:
+  enabled: true
+  image:
+    repository: ghcr.io/beaverhouse/tinyclover-ae-analyzer
+    tag: "62bb1e96"
+  nameOverride: "ae-analyzer"
+  fullnameOverride: "ae-analyzer"
+  service:
+    api:
+      port: 8086
+  resources: *common-resources
+  livenessProbe: &ae-analyzer-probe
+    httpGet:
+      path: /ae-analyzer/v1/health
+    periodSeconds: 120
+  readinessProbe: *ae-analyzer-probe
+  externalSecret:
+    enabled: true
+    data:
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
+  httproute:
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /ae-analyzer/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: ae-analyzer-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
 ba-analyzer:
   enabled: true
   replicaCount: 2
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
-    pullPolicy: IfNotPresent
     tag: "b5d6366e"
   nameOverride: "ba-analyzer"
   fullnameOverride: "ba-analyzer"
   service:
-    type: ClusterIP
     api:
       port: 8085
     mcp:
       enabled: true
       port: 8105
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &ba-analyzer-probe
     httpGet:
       path: /ba-analyzer/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /ba-analyzer/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *ba-analyzer-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "SUPABASE_PUBLIC_S3_CDN_URL"
         remoteRef:
           key: "SUPABASE_PUBLIC_S3_CDN_URL"
@@ -135,75 +123,45 @@ ba-analyzer:
         remoteRef:
           key: "YOUTUBE_API_KEY"
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /ba-analyzer/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: ba-analyzer-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
 data-aggregator:
   enabled: true
   replicaCount: 2
   image:
     repository: ghcr.io/beaverhouse/tinyclover-data-aggregator
-    pullPolicy: IfNotPresent
     tag: "a916e28b"
   nameOverride: "data-aggregator"
   fullnameOverride: "data-aggregator"
   service:
-    type: ClusterIP
     api:
       port: 8082
     mcp:
       enabled: true
       port: 8102
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &data-aggregator-probe
     httpGet:
       path: /data-aggregator/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /data-aggregator/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *data-aggregator-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "NAVER_CLIENT_ID"
         remoteRef:
           key: "NAVER_CLIENT_ID"
@@ -214,78 +172,45 @@ data-aggregator:
         remoteRef:
           key: "TAVILY_API_KEY"
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /data-aggregator/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: data-aggregator-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
     - name: MCP_BASE_URL
       value: "http://data-aggregator.tiny-clover.svc.cluster.local:8102/data-aggregator/v1"
     - name: WIKI_ARCHIVE_URL
       value: "https://codeload.github.com/BeaverHouse/llmwiki-game/tar.gz/refs/heads/main"
 file-manager:
   enabled: true
-  replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-file-manager
-    pullPolicy: IfNotPresent
     tag: "11e2cce1"
   nameOverride: "file-manager"
   fullnameOverride: "file-manager"
   service:
-    type: ClusterIP
     api:
       port: 8081
-    mcp:
-      enabled: false
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &file-manager-probe
     httpGet:
       path: /file-manager/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /file-manager/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *file-manager-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "S3_PUBLIC_ENDPOINT"
         remoteRef:
           key: "SUPABASE_S3_ENDPOINT"
@@ -312,18 +237,9 @@ file-manager:
         remoteRef:
           key: "SUPABASE_S3_PRIVATE_BUCKET"
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /file-manager/v1
         timeouts:
           request: 300s
@@ -337,78 +253,46 @@ file-manager:
     - secretRef:
         name: file-manager-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
 food-manager:
   enabled: true
-  replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-food-manager
-    pullPolicy: IfNotPresent
     tag: "6654f8ad"
   nameOverride: "food-manager"
   fullnameOverride: "food-manager"
   service:
-    type: ClusterIP
     api:
       port: 8084
     mcp:
       enabled: true
       port: 8104
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &food-manager-probe
     httpGet:
       path: /food-manager/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /food-manager/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *food-manager-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /food-manager/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: food-manager-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
     - name: MCP_BASE_URL
       value: "http://food-manager.tiny-clover.svc.cluster.local:8104/food-manager/v1"
     - name: LIFE_ORGANIZER_BASE_URL
@@ -417,120 +301,71 @@ food-manager:
       value: "http://llm-client.tiny-clover.svc.cluster.local:8080"
 life-organizer:
   enabled: true
-  replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-life-organizer
-    pullPolicy: IfNotPresent
     tag: "2eb723bd"
   nameOverride: "life-organizer"
   fullnameOverride: "life-organizer"
   service:
-    type: ClusterIP
     api:
       port: 8083
     mcp:
       enabled: true
       port: 8103
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &life-organizer-probe
     httpGet:
       path: /life-organizer/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /life-organizer/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *life-organizer-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "FCM_SERVICE_ACCOUNT_JSON"
         remoteRef:
           key: "FCM_SERVICE_ACCOUNT_JSON"
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /life-organizer/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: life-organizer-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
     - name: MCP_BASE_URL
       value: "http://life-organizer.tiny-clover.svc.cluster.local:8103/life-organizer/v1"
 llm-client:
   enabled: true
-  replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-llm-client
-    pullPolicy: IfNotPresent
     tag: "a0582984"
   nameOverride: "llm-client"
   fullnameOverride: "llm-client"
   service:
-    type: ClusterIP
     api:
       port: 8080
-    mcp:
-      enabled: false
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &llm-client-probe
     httpGet:
       path: /v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *llm-client-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "GUEST_SERVICE_TOKEN"
         remoteRef:
           key: "GUEST_SERVICE_TOKEN"
@@ -538,33 +373,23 @@ llm-client:
         remoteRef:
           key: "BIFROST_SETUP_TOKEN"
   httproute:
-    enabled: true
+    <<: *api-route
     parentRefs:
       - name: api-gateway
         sectionName: https-llm
     hostnames:
       - llm.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
     rules:
       - path:
-          type: PathPrefix
           value: /v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: llm-client-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
     # Bifrost gateway (inference requires the /v1 path).
     - name: LLM_GATEWAY_ENDPOINT
       value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
@@ -572,45 +397,27 @@ llm-client:
       value: "bifrost"
 service-api:
   enabled: true
-  replicaCount: 1
   image:
     repository: ghcr.io/beaverhouse/tinyclover-service-api
-    pullPolicy: IfNotPresent
     tag: "d081369b"
   nameOverride: "service-api"
   fullnameOverride: "service-api"
   service:
-    type: ClusterIP
     api:
       port: 5050
-    mcp:
-      enabled: false
   resources: *common-resources
-  livenessProbe:
+  livenessProbe: &service-api-probe
     httpGet:
       path: /service-api/v1/health
-      port: api
     periodSeconds: 120
-  readinessProbe:
-    httpGet:
-      path: /service-api/v1/health
-      port: api
-    periodSeconds: 120
+  readinessProbe: *service-api-probe
   externalSecret:
     enabled: true
     data:
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
-      - secretKey: "POSTGRES_USER"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_USER"
-      - secretKey: "POSTGRES_PASSWORD"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_PASSWORD"
-      - secretKey: "SUPABASE_JWT_KEYFUNC_URL"
-        remoteRef:
-          key: "SUPABASE_JWT_KEYFUNC_URL"
+      - *postgres-host
+      - *postgres-user
+      - *postgres-password
+      - *jwt-keyfunc-url
       - secretKey: "LEMON_SQUEEZY_WEBHOOK_SECRET"
         remoteRef:
           key: "LEMON_SQUEEZY_WEBHOOK_SECRET"
@@ -624,33 +431,18 @@ service-api:
         remoteRef:
           key: "BIFROST_SETUP_TOKEN"
   httproute:
-    enabled: true
-    parentRefs:
-      - name: api-gateway
-        sectionName: https-api
-    hostnames:
-      - api.tinyclover.com
-    annotations:
-      external-dns.kubernetes.io/set-identifier: "oke-cluster-gateway"
-      external-dns.kubernetes.io/aws-weight: "100"
+    <<: *api-route
     rules:
       - path:
-          type: PathPrefix
           value: /service-api/v1
-        timeouts:
-          request: 60s
-          backendRequest: 60s
+        timeouts: *default-timeouts
   clientSettings:
     enabled: true
-    body:
-      maxSize: 10m
-      timeout: 60s
   envFrom:
     - secretRef:
         name: service-api-secret
   extraEnv:
-    - name: GO_ENV
-      value: "production"
+    - *go-env
     # Bifrost gateway (inference requires the /v1 path).
     - name: LLM_GATEWAY_ENDPOINT
       value: "http://bifrost.bifrost.svc.cluster.local:8080/v1"
@@ -662,23 +454,18 @@ llmwiki-bot:
   # port, so there is no route, no probe, and the Service the shared chart
   # renders goes unused. The image tag is kept current by the build workflow.
   enabled: true
-  replicaCount: 1
   # Two pods would both answer the same Slack events, so a rollout stops the
   # old pod before the new one starts; the new one finishes what was cut off.
   strategy:
     type: Recreate
   image:
     repository: ghcr.io/beaverhouse/llmwiki-bot
-    pullPolicy: IfNotPresent
     tag: "2f9c15d1"
   nameOverride: "llmwiki-bot"
   fullnameOverride: "llmwiki-bot"
   service:
-    type: ClusterIP
     api:
       port: 8090
-    mcp:
-      enabled: false
   # One agent run is a Claude Code process (180-500 MB in normal use, with
   # runaway cases on record) and two may run at once. The memory limit is what
   # stops a runaway; a run it kills shows a cross in Slack and is not retried.
@@ -708,9 +495,7 @@ llmwiki-bot:
         remoteRef:
           key: "GUEST_SERVICE_TOKEN"
       # Read-only database role for the scheduled checks.
-      - secretKey: "POSTGRES_HOST"
-        remoteRef:
-          key: "SUPABASE_POSTGRES_HOST"
+      - *postgres-host
       - secretKey: "POSTGRES_USER"
         remoteRef:
           key: "LLMWIKI_BOT_POSTGRES_USER"
