@@ -27,7 +27,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with concat ((.Values.global).imagePullSecrets | default list) .Values.imagePullSecrets | uniq }}
+      {{- with concat ((.Values.global).imagePullSecrets | default list) (.Values.imagePullSecrets | default list) | uniq }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
