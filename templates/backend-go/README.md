@@ -78,6 +78,16 @@ clientSettings:
     timeout: 60s
 ```
 
+### Shared defaults (global.backendGo)
+
+An umbrella chart that aliases this chart several times can set values once under `global.backendGo`:
+
+- `imagePullSecrets`, `resources`: used when the service leaves them empty.
+- `httproute`, `clientSettings`: merged under the service's own map, so the service overrides single fields. `enabled` stays per service.
+- `externalSecret.data`, `extraEnv`: global entries come first, then the service's.
+
+A service that should take none of them sets `inheritGlobal: false`.
+
 ## Testing network ports
 
 The API port is exposed via HTTPRoute, so you can test it by accessing the configured hostname.

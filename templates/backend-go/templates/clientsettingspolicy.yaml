@@ -1,4 +1,6 @@
 {{- if and .Values.clientSettings .Values.clientSettings.enabled }}
+{{- $global := include "backend-go.globalDefaults" . | fromYaml }}
+{{- $settings := mergeOverwrite (deepCopy (dig "clientSettings" dict $global)) .Values.clientSettings }}
 apiVersion: gateway.nginx.org/v1alpha1
 kind: ClientSettingsPolicy
 metadata:
@@ -11,6 +13,6 @@ spec:
     kind: HTTPRoute
     name: {{ include "backend-go.fullname" . }}
   body:
-    maxSize: {{ .Values.clientSettings.body.maxSize }}
-    timeout: {{ .Values.clientSettings.body.timeout }}
+    maxSize: {{ $settings.body.maxSize }}
+    timeout: {{ $settings.body.timeout }}
 {{- end }}
