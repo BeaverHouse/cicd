@@ -134,8 +134,8 @@ externalSecret:
     #   remoteRef:
     #     key: "DATABASE_URL"
 
-# Gateway API - HTTPRoute configuration. parentRefs, hostnames and rules are
-# required when enabled (see README).
+# Gateway API - HTTPRoute configuration. parentRefs and hostnames are left out
+# when unset, and rules default to sending / to this service (see README).
 httproute:
   enabled: false
 

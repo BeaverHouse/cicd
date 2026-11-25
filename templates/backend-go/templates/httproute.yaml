@@ -12,12 +12,16 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{- with $route.parentRefs }}
   parentRefs:
-    {{- toYaml (required "httproute.parentRefs is required" $route.parentRefs) | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $route.hostnames }}
   hostnames:
-    {{- toYaml (required "httproute.hostnames is required" $route.hostnames) | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   rules:
-    {{- range (required "httproute.rules is required" $route.rules) }}
+    {{- range $route.rules | default (list (dict "path" (dict "value" "/"))) }}
     - matches:
         - path:
             type: {{ .path.type | default "PathPrefix" }}
