@@ -134,11 +134,13 @@ externalSecret:
     #   remoteRef:
     #     key: "DATABASE_URL"
 
-# Gateway API - HTTPRoute configuration (see README for the fields).
+# Gateway API - HTTPRoute configuration. parentRefs, hostnames and rules are
+# required when enabled (see README).
 httproute:
   enabled: false
 
-# NGINX Gateway Fabric - ClientSettings configuration (see README for the fields).
+# NGINX Gateway Fabric - ClientSettings configuration. body.maxSize and
+# body.timeout default to 10m and 60s (see README).
 clientSettings:
   enabled: false
 

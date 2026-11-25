@@ -13,6 +13,6 @@ spec:
     kind: HTTPRoute
     name: {{ include "backend-go.fullname" . }}
   body:
-    maxSize: {{ $settings.body.maxSize }}
-    timeout: {{ $settings.body.timeout }}
+    maxSize: {{ dig "body" "maxSize" "10m" $settings }}
+    timeout: {{ dig "body" "timeout" "60s" $settings }}
 {{- end }}

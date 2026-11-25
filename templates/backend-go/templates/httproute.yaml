@@ -13,11 +13,11 @@ metadata:
   {{- end }}
 spec:
   parentRefs:
-    {{- toYaml $route.parentRefs | nindent 4 }}
+    {{- toYaml (required "httproute.parentRefs is required" $route.parentRefs) | nindent 4 }}
   hostnames:
-    {{- toYaml $route.hostnames | nindent 4 }}
+    {{- toYaml (required "httproute.hostnames is required" $route.hostnames) | nindent 4 }}
   rules:
-    {{- range $route.rules }}
+    {{- range (required "httproute.rules is required" $route.rules) }}
     - matches:
         - path:
             type: {{ .path.type | default "PathPrefix" }}
