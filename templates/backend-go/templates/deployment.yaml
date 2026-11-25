@@ -1,4 +1,3 @@
-{{- $global := include "backend-go.globalDefaults" . | fromYaml }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,7 +27,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets | default $global.imagePullSecrets }}
+      {{- with concat ((.Values.global).imagePullSecrets | default list) .Values.imagePullSecrets | uniq }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -62,7 +61,7 @@ spec:
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.resources | default $global.resources }}
+          {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -70,7 +69,7 @@ spec:
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with concat ($global.extraEnv | default list) (.Values.extraEnv | default list) }}
+          {{- with .Values.extraEnv }}
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}

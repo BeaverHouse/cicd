@@ -134,15 +134,27 @@ externalSecret:
     #   remoteRef:
     #     key: "DATABASE_URL"
 
-# Gateway API - HTTPRoute configuration. parentRefs and hostnames are left out
-# when unset, and rules default to sending / to this service (see README).
+# Gateway API - HTTPRoute configuration
 httproute:
   enabled: false
+  parentRefs:
+    - name: chart-example-gateway
+      sectionName: https-chart-example
+  hostnames:
+    - chart-example.local
+  annotations:
+    external-dns.kubernetes.io/set-identifier: "some-set-identifier"
+  rules:
+    - path:
+        type: PathPrefix
+        value: /some-path/v1
+      timeouts:
+        request: 60s
+        backendRequest: 60s
 
-# NGINX Gateway Fabric - ClientSettings configuration. body.maxSize and
-# body.timeout default to 10m and 60s (see README).
+# NGINX Gateway Fabric - ClientSettings configuration
 clientSettings:
   enabled: false
-
-# Take defaults from the umbrella chart's global.backendGo (see README).
-inheritGlobal: true
+  body:
+    maxSize: 10m
+    timeout: 60s

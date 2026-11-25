@@ -51,16 +51,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Defaults an umbrella chart shares with every backend-go alias through global.backendGo.
-Empty when the service sets inheritGlobal: false.
-*/}}
-{{- define "backend-go.globalDefaults" -}}
-{{- if .Values.inheritGlobal }}
-{{- toYaml (dig "backendGo" dict (.Values.global | default dict)) }}
-{{- end }}
-{{- end }}
-
-{{/*
 Create the name of the service account to use
 */}}
 {{- define "backend-go.serviceAccountName" -}}

@@ -78,15 +78,15 @@ clientSettings:
     timeout: 60s
 ```
 
-### Shared defaults (global.backendGo)
+### Image Pull Secrets
 
-An umbrella chart that aliases this chart several times can set values once under `global.backendGo`:
+An umbrella chart can list secrets once under `global.imagePullSecrets`. Each service uses them together with its own `imagePullSecrets`, without duplicates.
 
-- `imagePullSecrets`, `resources`: used when the service leaves them empty.
-- `httproute`, `clientSettings`: merged under the service's own map, so the service overrides single fields. `enabled` stays per service.
-- `externalSecret.data`, `extraEnv`: global entries come first, then the service's.
-
-A service that should take none of them sets `inheritGlobal: false`.
+```yaml
+global:
+  imagePullSecrets:
+    - name: ghcr-secret
+```
 
 ## Testing network ports
 
