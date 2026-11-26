@@ -15,7 +15,8 @@ argocd/
 ```
 
 **NOTE that some of the core components in home server, including Argo CD, are installed via CLI.**  
-Please refer to [macos-oneclick-install](https://github.com/BeaverHouse/macos-oneclick-install)
+Please refer to [macos-oneclick-install](https://github.com/BeaverHouse/macos-oneclick-install)  
+After the install, the `home` Applications of `oss-argocd`, `oss-metallb`, `oss-nginx-gateway`, `oss-eso` and `oss-cert-manager` take over those components. Their versions are set here.
 
 ## Dependency Order
 

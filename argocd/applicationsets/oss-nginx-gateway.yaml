@@ -10,6 +10,11 @@ spec:
           - name: oke
             project: cloud
             cluster: oke
+            valuesFile: values.yaml
+          - name: home
+            project: home-server
+            cluster: in-cluster
+            valuesFile: values-home.yaml
   template:
     metadata:
       name: "oss-nginx-gateway-{{ .name }}"
@@ -27,7 +32,7 @@ spec:
           helm:
             releaseName: nginx-gateway
             valueFiles:
-              - $customRepo/charts/oss-nginx-gateway/values.yaml
+              - "$customRepo/charts/oss-nginx-gateway/{{ .valuesFile }}"
         - repoURL: https://github.com/BeaverHouse/cicd.git
           targetRevision: main
           ref: customRepo

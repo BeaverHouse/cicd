@@ -11,6 +11,8 @@ I use it to expose services to the internet via [Layer 2 mode](https://metallb.u
 
 **Note that MetalLB will not work on most cloud providers.**
 
+`oss-metallb` deploys MetalLB on the home server. The home server CLI applies the resources below.
+
 ## Resources
 
 - `ipconfig.yaml`: Configures the IP pool & L2 advertisement for MetalLB.

@@ -11,6 +11,9 @@ spec:
           - name: oke
             project: cloud
             cluster: oke
+          - name: home
+            project: home-server
+            cluster: in-cluster
   template:
     metadata:
       name: "oss-eso-{{ .name }}"

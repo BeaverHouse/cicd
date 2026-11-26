@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-metallb-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: home
+            project: home-server
+            cluster: in-cluster
+  template:
+    metadata:
+      name: "oss-metallb-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: metallb-system
+      source:
+        repoURL: https://github.com/metallb/metallb.git
+        targetRevision: v0.15.2
+        path: config/manifests
+        directory:
+          include: metallb-native.yaml
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
