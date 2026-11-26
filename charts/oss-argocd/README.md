@@ -2,8 +2,9 @@
 
 [Argo CD](https://argo-cd.readthedocs.io/en/stable/) is a declarative, GitOps continuous delivery tool for Kubernetes.
 
-This folder contains Argo CD OAuth secret, Project settings, and App-of-Apps configurations.  
-This files are used in [My home-server install CLI](https://github.com/BeaverHouse/macos-oneclick-install) and not managed by Argo CD itself.
+This folder contains the Argo CD Helm values, OAuth secret, Project settings, and App-of-Apps configurations.  
+[My home-server install CLI](https://github.com/BeaverHouse/macos-oneclick-install) installs Argo CD with these files.
+After that, `oss-argocd` syncs the chart and `values.yaml`. The files in `resources/` are applied only by the CLI.
 
 ## Scaling References
 

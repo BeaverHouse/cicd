@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: oss-argocd-applicationset
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: home
+            project: home-server
+            cluster: in-cluster
+  template:
+    metadata:
+      name: "oss-argocd-{{ .name }}"
+    spec:
+      project: "{{ .project }}"
+      destination:
+        name: "{{ .cluster }}"
+        namespace: argo-project
+      sources:
+        - repoURL: https://argoproj.github.io/argo-helm
+          targetRevision: 10.20.0
+          chart: argo-cd
+          helm:
+            releaseName: argocd
+            valueFiles:
+              - $customRepo/charts/oss-argocd/values.yaml
+        - repoURL: https://github.com/BeaverHouse/cicd.git
+          targetRevision: main
+          ref: customRepo
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
