@@ -91,7 +91,7 @@ ba-analyzer:
   replicaCount: 2
   image:
     repository: ghcr.io/beaverhouse/tinyclover-ba-analyzer
-    tag: "b5d6366e"
+    tag: "53cf70c6"
   nameOverride: "ba-analyzer"
   fullnameOverride: "ba-analyzer"
   service:
